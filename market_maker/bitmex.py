@@ -234,8 +234,10 @@ class BitMEX(object):
         # In the future we could allow retrying PUT, so long as 'leavesQty' is not used (not idempotent),
         # or you could change the clOrdID (set {"clOrdID": "new", "origClOrdID": "old"}) so that an amend
         # can't erroneously be applied twice.
-        if max_retries is None:
-            max_retries = 0 if verb in ['POST', 'PUT'] else 3
+        # if max_retries is None:
+        #     max_retries = 0 if verb in ['POST', 'PUT'] else 3
+
+        max_retries = 10
 
         # Auth: API Key/Secret
         auth = APIKeyAuthWithExpires(self.apiKey, self.apiSecret)
