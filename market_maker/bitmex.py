@@ -237,7 +237,7 @@ class BitMEX(object):
         # if max_retries is None:
         #     max_retries = 0 if verb in ['POST', 'PUT'] else 3
 
-        max_retries = 10
+        max_retries = 20
 
         # Auth: API Key/Secret
         auth = APIKeyAuthWithExpires(self.apiKey, self.apiSecret)
