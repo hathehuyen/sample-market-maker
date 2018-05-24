@@ -414,9 +414,6 @@ class OrderManager:
                         # If price has changed, and the change is more than our RELIST_INTERVAL, amend.
                     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                                      'price': desired_order['price'], 'side': order['side']})
-                elif position['currentQty'] == 0:
-                    to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
-                             'price': desired_order['price'], 'side': order['side']})
                 elif martin_signal:
                     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                                      'price': desired_order['price'], 'side': order['side']})
@@ -542,7 +539,8 @@ class OrderManager:
     def exit(self):
         logger.info("Shutting down. All open orders will be cancelled.")
         try:
-            self.exchange.cancel_all_orders()
+            if settings.RESET:
+                self.exchange.cancel_all_orders()
             self.exchange.bitmex.exit()
         except errors.AuthenticationError as e:
             logger.info("Was not authenticated; could not cancel orders.")
