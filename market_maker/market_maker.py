@@ -249,6 +249,8 @@ class OrderManager:
         for order in orders:
             logger.info("now existed order price %f, amount %d" % (order['price'], order['orderQty']) )
 
+
+
     def get_ticker(self):
         ticker = self.exchange.get_ticker()
         tickLog = self.exchange.get_instrument()['tickLog']
