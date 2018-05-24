@@ -235,6 +235,7 @@ class OrderManager:
         self.running_qty = self.exchange.get_delta()
         tickLog = self.exchange.get_instrument()['tickLog']
         self.start_XBt = margin["marginBalance"]
+        orders = self.exchange.get_orders()
 
         logger.info("Current XBT Balance: %.6f" % XBt_to_XBT(self.start_XBt))
         logger.info("Current Contract Position: %d" % self.running_qty)
@@ -245,6 +246,8 @@ class OrderManager:
             logger.info("Avg Entry Price: %.*f" % (tickLog, float(position['avgEntryPrice'])))
         logger.info("Contracts Traded This Run: %d" % (self.running_qty - self.starting_qty))
         logger.info("Total Contract Delta: %.4f XBT" % self.exchange.calc_delta()['spot'])
+        for order in orders:
+            logger.info("now existed order price %f, amount %d" % (order['price'], order['orderQty']) )
 
     def get_ticker(self):
         ticker = self.exchange.get_ticker()
