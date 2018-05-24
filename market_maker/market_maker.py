@@ -333,15 +333,15 @@ class OrderManager:
         #balance position
 
         if position['currentQty'] > 0 and  position['currentQty'] > sell_orders[-1]['orderQty']:
-            print("cost price %f" % (cost))
-            print("current quanlity %d" % (sell_orders[-1]['orderQty']))
-            print("adjust order quanlity to %d" % (position['currentQty']))
+            # print("cost price %f" % (cost))
+            # print("current quanlity %d" % (sell_orders[-1]['orderQty']))
+            # print("adjust order quanlity to %d" % (position['currentQty']))
             sell_orders[-1]['orderQty'] = abs(position['currentQty'])
 
         if position['currentQty'] < 0 and  abs(position['currentQty']) > buy_orders[-1]['orderQty']:
-            print("cost price %f" % (cost))
-            print("current quanlity %d" % (buy_orders[-1]['orderQty']))
-            print("adjust order quanlity to %d" % (position['currentQty']))
+            # print("cost price %f" % (cost))
+            # print("current quanlity %d" % (buy_orders[-1]['orderQty']))
+            # print("adjust order quanlity to %d" % (position['currentQty']))
             buy_orders[-1]['orderQty'] = abs(position['currentQty'])
 
         return self.converge_orders(buy_orders, sell_orders)
