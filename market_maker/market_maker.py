@@ -330,6 +330,8 @@ class OrderManager:
             if not self.short_position_limit_exceeded():
                 sell_orders.append(self.prepare_order(i))
 
+        print(cost)
+        print(sell_orders[-1]['price'])
 
         if position['currentQty'] > 0 and cost < sell_orders[-1]['price'] and position['currentQty'] > sell_orders[-1]['orderQty']:
             print("cost price %f" % (cost))
