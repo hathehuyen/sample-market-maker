@@ -319,11 +319,23 @@ class OrderManager:
         # then we match orders from the outside in, ensuring the fewest number of orders are amended and only
         # a new order is created in the inside. If we did it inside-out, all orders would be amended
         # down and a new order would be created at the outside.
+        position = self.exchange.get_position()
+        cost = 0
+        if position['currentQty'] != 0:
+            cost = float(position['avgCostPrice'])
+
         for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
             if not self.long_position_limit_exceeded():
                 buy_orders.append(self.prepare_order(-i))
             if not self.short_position_limit_exceeded():
                 sell_orders.append(self.prepare_order(i))
+
+            if position > 0 and cost < sell_orders[0]['price']:
+                sell_orders[0]['orderQty'] = abs(position)
+
+            if position < 0 and cost > buy_orders[0]['price']:
+                buy_orders[0]['orderQty'] = abs(position)
+                
 
         return self.converge_orders(buy_orders, sell_orders)
 
