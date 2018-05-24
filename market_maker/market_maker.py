@@ -383,12 +383,21 @@ class OrderManager:
                     sells_matched += 1
 
                 # Found an existing order. Do we need to amend it?
-                if desired_order['orderQty'] != order['leavesQty'] or (
+                # if desired_order['orderQty'] != order['leavesQty'] or (
+                #         # If price has changed, and the change is more than our RELIST_INTERVAL, amend.
+                #         desired_order['price'] != order['price'] and
+                #         abs((desired_order['price'] / order['price']) - 1) > settings.RELIST_INTERVAL):
+                #     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
+                #                      'price': desired_order['price'], 'side': order['side']})
+                if desired_order['orderQty'] != order['leavesQty']:
+                    to_amend.append(
+                        {'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
+                         'price': order['price'], 'side': order['side']})
+                elif desired_order['price'] != order['price'] and abs((desired_order['price'] / order['price']) - 1) > settings.RELIST_INTERVAL:
                         # If price has changed, and the change is more than our RELIST_INTERVAL, amend.
-                        desired_order['price'] != order['price'] and
-                        abs((desired_order['price'] / order['price']) - 1) > settings.RELIST_INTERVAL):
                     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                                      'price': desired_order['price'], 'side': order['side']})
+
             except IndexError:
                 # Will throw if there isn't a desired order to match. In that case, cancel it.
                 to_cancel.append(order)
