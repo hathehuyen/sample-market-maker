@@ -330,12 +330,12 @@ class OrderManager:
             if not self.short_position_limit_exceeded():
                 sell_orders.append(self.prepare_order(i))
 
-            if position['currentQty'] > 0 and cost < sell_orders[-1]['price']:
-                sell_orders[-1]['orderQty'] = abs(position['currentQty'])
 
-            if position['currentQty'] < 0 and cost > buy_orders[-1]['price']:
-                buy_orders[-1]['orderQty'] = abs(position['currentQty'])
+        if position['currentQty'] > 0 and cost < sell_orders[0]['price']:
+            sell_orders[0]['orderQty'] = abs(position['currentQty'])
 
+        if position['currentQty'] < 0 and cost > buy_orders[0]['price']:
+            buy_orders[0]['orderQty'] = abs(position['currentQty'])
 
         return self.converge_orders(buy_orders, sell_orders)
 
