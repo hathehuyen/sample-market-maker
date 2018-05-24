@@ -366,6 +366,7 @@ class OrderManager:
            We start from the closest orders outward."""
 
         tickLog = self.exchange.get_instrument()['tickLog']
+        position = self.exchange.get_position()
         to_amend = []
         to_create = []
         to_cancel = []
@@ -399,6 +400,9 @@ class OrderManager:
                         # If price has changed, and the change is more than our RELIST_INTERVAL, amend.
                     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                                      'price': desired_order['price'], 'side': order['side']})
+                elif position['currentQty'] == 0:
+                    to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
+                             'price': desired_order['price'], 'side': order['side']})
 
             except IndexError:
                 # Will throw if there isn't a desired order to match. In that case, cancel it.
