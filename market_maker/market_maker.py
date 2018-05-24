@@ -331,11 +331,11 @@ class OrderManager:
                 sell_orders.append(self.prepare_order(i))
 
 
-        if position['currentQty'] > 0 and cost < sell_orders[0]['price']:
-            sell_orders[0]['orderQty'] = abs(position['currentQty'])
+        if position['currentQty'] > 0 and cost < sell_orders[-1]['price'] and position['currentQty'] > sell_orders[-1]['orderQty']:
+            sell_orders[-1]['orderQty'] = abs(position['currentQty'])
 
-        if position['currentQty'] < 0 and cost > buy_orders[0]['price']:
-            buy_orders[0]['orderQty'] = abs(position['currentQty'])
+        if position['currentQty'] < 0 and cost > buy_orders[-1]['price'] and  abs(position['currentQty']) > buy_orders[-1]['orderQty']:
+            buy_orders[-1]['orderQty'] = abs(position['currentQty'])
 
         return self.converge_orders(buy_orders, sell_orders)
 
