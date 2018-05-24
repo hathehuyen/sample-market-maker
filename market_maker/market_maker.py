@@ -247,7 +247,7 @@ class OrderManager:
         logger.info("Contracts Traded This Run: %d" % (self.running_qty - self.starting_qty))
         logger.info("Total Contract Delta: %.4f XBT" % self.exchange.calc_delta()['spot'])
         for order in orders:
-            logger.info("now existed order price %f, amount %d" % (order['price'], order['orderQty']) )
+            logger.info("now existed order price %f, amount %d, side %s" % (order['price'], order['orderQty'],order['side'])
 
 
 
