@@ -205,6 +205,7 @@ class OrderManager:
         # on any error.
         atexit.register(self.exit)
         signal.signal(signal.SIGTERM, self.exit)
+        self.martin_signal = False
 
         logger.info("Using symbol %s." % self.exchange.symbol)
 
@@ -334,7 +335,7 @@ class OrderManager:
 
         #balance position
 
-        if position['currentQty'] > 0 and  position['currentQty'] > sell_orders[-1]['orderQty']:
+        if position['currentQty'] > 0 and position['currentQty'] > sell_orders[-1]['orderQty']:
             # print("cost price %f" % (cost))
             # print("current quanlity %d" % (sell_orders[-1]['orderQty']))
             # print("adjust order quanlity to %d" % (position['currentQty']))
@@ -345,6 +346,19 @@ class OrderManager:
             # print("current quanlity %d" % (buy_orders[-1]['orderQty']))
             # print("adjust order quanlity to %d" % (position['currentQty']))
             buy_orders[-1]['orderQty'] = abs(position['currentQty'])
+
+        if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
+            self.martin_signal = False
+
+        if self.long_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost < sell_orders[-1]['price'] and not self.martin_signal:
+            sell_orders[-1]['orderQty'] = abs(position['currentQty'])
+            self.martin_signal = True
+            self.converge_orders(buy_orders, sell_orders, True)
+
+        if self.short_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost > buy_orders[-1]['price'] and not self.martin_signal:
+            buy_orders[-1]['orderQty'] = abs(position['currentQty'])
+            self.martin_signal = True
+            self.converge_orders(buy_orders, sell_orders, True)
 
         return self.converge_orders(buy_orders, sell_orders)
 
@@ -360,7 +374,7 @@ class OrderManager:
 
         return {'price': price, 'orderQty': quantity, 'side': "Buy" if index < 0 else "Sell"}
 
-    def converge_orders(self, buy_orders, sell_orders):
+    def converge_orders(self, buy_orders, sell_orders, martin_signal = False):
         """Converge the orders we currently have in the book with what we want to be in the book.
            This involves amending any open orders and creating new ones if any have filled completely.
            We start from the closest orders outward."""
@@ -403,6 +417,10 @@ class OrderManager:
                 elif position['currentQty'] == 0:
                     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                              'price': desired_order['price'], 'side': order['side']})
+                elif martin_signal:
+                    to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
+                                     'price': desired_order['price'], 'side': order['side']})
+
 
             except IndexError:
                 # Will throw if there isn't a desired order to match. In that case, cancel it.
