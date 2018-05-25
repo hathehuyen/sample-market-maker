@@ -418,7 +418,7 @@ class OrderManager:
                     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                                      'price': desired_order['price'], 'side': order['side']})
 
-                elif abs(position['currentQty']) <= settings.RESET_LIST_LIMIT and desired_order['price'] != order['price'] and desired_order['orderQty'] != order['leavesQty']:
+                elif abs(position['currentQty']) <= settings.RESET_LIST_LIMIT and (desired_order['price'] != order['price'] or desired_order['orderQty'] != order['leavesQty']):
                     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                              'price': desired_order['price'], 'side': order['side']})
 
