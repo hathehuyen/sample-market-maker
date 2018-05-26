@@ -548,6 +548,7 @@ class OrderManager:
         # Get ticker, which sets price offsets and prints some debugging info.
         ticker = self.get_ticker()
 
+
         # Sanity check:
         if self.get_price_offset(-1) >= ticker["sell"] or self.get_price_offset(1) <= ticker["buy"]:
             logger.error("Buy: %s, Sell: %s" % (self.start_position_buy, self.start_position_sell))
