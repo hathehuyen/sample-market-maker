@@ -355,11 +355,18 @@ class OrderManager:
         if position['currentQty'] != 0:
             cost = float(position['avgCostPrice'])
 
-        for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
-            if not self.long_position_limit_exceeded():
-                buy_orders.append(self.prepare_order(-i))
-            if not self.short_position_limit_exceeded():
-                sell_orders.append(self.prepare_order(i))
+        if settings.FIBONACCI_METHOD:
+            for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
+                if not self.long_position_limit_exceeded():
+                    buy_orders.append(self.prepare_fibonacci_order(-i))
+                if not self.short_position_limit_exceeded():
+                    sell_orders.append(self.prepare_fibonacci_order(i))
+        else:
+            for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
+                if not self.long_position_limit_exceeded():
+                    buy_orders.append(self.prepare_order(-i))
+                if not self.short_position_limit_exceeded():
+                    sell_orders.append(self.prepare_order(i))
 
         #balance position
 
