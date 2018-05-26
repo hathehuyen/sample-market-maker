@@ -330,9 +330,9 @@ class OrderManager:
                 start_position = self.start_position_buy
 
         if index > 0:
-            return math.toNearest(start_position + start_position * settings.INTERVAL * fib(index) , self.instrument['tickSize'])
+            return math.toNearest(start_position + start_position * settings.INTERVAL * (fib(index) - 1) , self.instrument['tickSize'])
         else:
-            return math.toNearest(start_position - start_position * settings.INTERVAL * fib(index),
+            return math.toNearest(start_position - start_position * settings.INTERVAL * (fib(index) - 1),
                                   self.instrument['tickSize'])
 
 
