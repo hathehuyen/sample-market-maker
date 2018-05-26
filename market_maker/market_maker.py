@@ -332,12 +332,12 @@ class OrderManager:
 
         print index
         if index > 0:
-            print fib(index)
-            print start_position + start_position * settings.INTERVAL * fib(index)
+            print(fib(index))
+            print(start_position + start_position * settings.INTERVAL * fib(index))
             return math.toNearest(start_position + start_position * settings.INTERVAL * fib(index) , self.instrument['tickSize'])
         else:
-            print fib(index)
-            print start_position + start_position * settings.INTERVAL * fib(index)
+            print(fib(index))
+            print(start_position + start_position * settings.INTERVAL * fib(index))
             return math.toNearest(start_position - start_position * settings.INTERVAL * fib(index),
                                   self.instrument['tickSize'])
 
