@@ -209,6 +209,7 @@ class OrderManager:
         self.martin_signal = False
         self.balance_signal = False
         # cache tick data
+        self.last_position = 0
         self.size = 20
         self.buys = np.zeros(self.size)
         self.sells = np.zeros(self.size)
@@ -381,6 +382,10 @@ class OrderManager:
         if self.balance_signal and settings.MIN_BALANCE_VOLUME > abs(position['currentQty']):
             self.balance_signal = False
 
+        if self.balance_signal and settings.MIN_BALANCE_VOLUME < abs(position['currentQty']) \
+                and position['currentQty'] != self.last_position:
+            self.balance_signal = False
+
         #balance position
         if settings.KEEP_BALANCE and settings.MIN_BALANCE_VOLUME < abs(position['currentQty']):
 
@@ -389,6 +394,7 @@ class OrderManager:
                 sell_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
 
                 if not self.balance_signal:
+                    self.last_position = position['currentQty']
                     self.converge_orders(buy_orders, sell_orders, True)
                     self.balance_signal = True
 
@@ -397,6 +403,7 @@ class OrderManager:
                 buy_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
 
                 if not self.balance_signal:
+                    self.last_position = position['currentQty']
                     self.converge_orders(buy_orders, sell_orders, True)
                     self.balance_signal = True
 
