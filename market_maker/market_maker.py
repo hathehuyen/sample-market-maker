@@ -206,6 +206,7 @@ class OrderManager:
         atexit.register(self.exit)
         signal.signal(signal.SIGTERM, self.exit)
         self.martin_signal = False
+        self.balance_signal = False
 
         logger.info("Using symbol %s." % self.exchange.symbol)
 
@@ -328,14 +329,9 @@ class OrderManager:
             if index < 0 and start_position > self.start_position_sell:
                 start_position = self.start_position_buy
 
-        print(index)
         if index > 0:
-            print(fib(index))
-            print(start_position + start_position * settings.INTERVAL * (fib(index) - 1))
             return math.toNearest(start_position + start_position * settings.INTERVAL * fib(index) , self.instrument['tickSize'])
         else:
-            print(fib(index))
-            print(start_position - start_position * settings.INTERVAL * (fib(index) - 1))
             return math.toNearest(start_position - start_position * settings.INTERVAL * fib(index),
                                   self.instrument['tickSize'])
 
@@ -387,6 +383,25 @@ class OrderManager:
 
         if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
             self.martin_signal = False
+
+        if settings.KEEP_BALANCE and settings.MIN_BALANCE_VOLUME < abs(position['currentQty']) and self.balance_signal:
+            self.balance_signal = False
+
+        if settings.KEEP_BALANCE and settings.MIN_BALANCE_VOLUME < abs(position['currentQty']) and not self.balance_signal:
+            if position['currentQty'] > 0 and cost < sell_orders[-1]['price']:
+                sell_orders[-1]['orderQty'] = abs(position['currentQty'])/ 3
+                sell_orders[-2]['orderQty'] = abs(position['currentQty'])/ 3
+                sell_orders[-3]['orderQty'] = abs(position['currentQty'])/ 3
+                self.balance_signal = True
+                self.converge_orders(buy_orders, sell_orders, True)
+
+            if position['currentQty'] < 0 and cost > buy_orders[-1]['price']:
+                buy_orders[-1]['orderQty'] = abs(position['currentQty']) / 3
+                buy_orders[-2]['orderQty'] = abs(position['currentQty']) / 3
+                buy_orders[-3]['orderQty'] = abs(position['currentQty']) / 3
+                self.balance_signal = True
+                self.converge_orders(buy_orders, sell_orders, True)
+
 
         if self.long_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost < sell_orders[-1]['price'] and not self.martin_signal:
             sell_orders[-1]['orderQty'] = abs(position['currentQty'])
