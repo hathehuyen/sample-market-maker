@@ -380,14 +380,18 @@ class OrderManager:
                 sell_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 3)
                 sell_orders[-3]['orderQty'] = int(abs(position['currentQty']) / 3)
 
+                if not self.balance_signal:
+                    self.converge_orders(buy_orders, sell_orders, True)
+                    self.balance_signal = True
+
             if position['currentQty'] < 0 and cost > buy_orders[-1]['price']:
                 buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 3)
                 buy_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 3)
                 buy_orders[-3]['orderQty'] = int(abs(position['currentQty']) / 3)
 
-            if not self.balance_signal:
-                self.converge_orders(buy_orders, sell_orders, True)
-                self.balance_signal = True
+                if not self.balance_signal:
+                    self.converge_orders(buy_orders, sell_orders, True)
+                    self.balance_signal = True
 
 
         if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
