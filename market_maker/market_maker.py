@@ -586,10 +586,10 @@ class OrderManager:
         self.sells[0:self.size - 1] = self.sells[1:self.size]
         self.sells[-1] = ticker['sell']
 
-        if self.buys[-1] != self.buys[-2]:
+        if self.buys[-1] != self.buys[-3]:
             return False
 
-        if self.sells[-1] != self.sells[-2]:
+        if self.sells[-1] != self.sells[-3]:
             return False
 
         return True
