@@ -400,7 +400,7 @@ class OrderManager:
 
     def prepare_fibonacci_order(self, index):
         if settings.EXPON_ORDER_SIZE:
-            quantity = settings.ORDER_START_SIZE * 2 ** (index - 1)
+            quantity = settings.ORDER_START_SIZE * 2 ** abs(index - 1)
         else:
             quantity = settings.ORDER_START_SIZE + ((abs(index) - 1) * settings.ORDER_STEP_SIZE)
 
