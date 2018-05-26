@@ -7,6 +7,7 @@ import random
 import requests
 import atexit
 import signal
+import numpy as np
 
 from market_maker import bitmex
 from market_maker.settings import settings
@@ -207,7 +208,10 @@ class OrderManager:
         signal.signal(signal.SIGTERM, self.exit)
         self.martin_signal = False
         self.balance_signal = False
-        self.tick_cache = []
+        # cache tick data
+        self.size = 20
+        self.buys = np.zeros(self.size)
+        self.sells = np.zeros(self.size)
 
         logger.info("Using symbol %s." % self.exchange.symbol)
 
@@ -350,6 +354,11 @@ class OrderManager:
         # then we match orders from the outside in, ensuring the fewest number of orders are amended and only
         # a new order is created in the inside. If we did it inside-out, all orders would be amended
         # down and a new order would be created at the outside.
+        if not self.check_stable():
+            print 'Current not stable'
+            return
+
+
         position = self.exchange.get_position()
         cost = 0
         if position['currentQty'] != 0:
@@ -558,6 +567,22 @@ class OrderManager:
     # Sanity
     ##
 
+    def check_stable(self):
+        ticker = self.exchange.get_ticker()
+        self.buys[0:self.size - 1] = self.buys[1:self.size]
+        self.buys[-1] = ticker['buy']
+        self.sells[0:self.size - 1] = self.sells[1:self.size]
+        self.sells[-1] = ticker['sell']
+
+        if self.buys[-1] != self.buys[-2]:
+            return False
+
+        if self.sells[-1] != self.sells[-2]:
+            return False
+
+        return True
+
+
     def sanity_check(self):
         """Perform checks before placing orders."""
 
@@ -569,8 +594,7 @@ class OrderManager:
 
         # Get ticker, which sets price offsets and prints some debugging info.
         ticker = self.get_ticker()
-
-
+        # self.tick_cache.append(ticker)
 
 
         # Sanity check:
