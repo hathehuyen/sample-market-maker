@@ -330,7 +330,7 @@ class OrderManager:
             if index < 0 and start_position > self.start_position_sell:
                 start_position = self.start_position_buy
 
-        print index
+        print(index)
         if index > 0:
             print(fib(index))
             print(start_position + start_position * settings.INTERVAL * fib(index))
