@@ -309,6 +309,34 @@ class OrderManager:
 
         return math.toNearest(start_position * (1 + settings.INTERVAL) ** index, self.instrument['tickSize'])
 
+
+    def get_fibonacci_price_offset(self, index):
+        """Given an index (1, -1, 2, -2, etc.) return the price for that side of the book.
+           Negative is a buy, positive is a sell."""
+        # Maintain existing spreads for max profit
+        if settings.MAINTAIN_SPREADS:
+            start_position = self.start_position_buy if index < 0 else self.start_position_sell
+            # First positions (index 1, -1) should start right at start_position, others should branch from there
+            index = index + 1 if index < 0 else index - 1
+        else:
+            # Offset mode: ticker comes from a reference exchange and we define an offset.
+            start_position = self.start_position_buy if index < 0 else self.start_position_sell
+
+            # If we're attempting to sell, but our sell price is actually lower than the buy,
+            # move over to the sell side.
+            if index > 0 and start_position < self.start_position_buy:
+                start_position = self.start_position_sell
+            # Same for buys.
+            if index < 0 and start_position > self.start_position_sell:
+                start_position = self.start_position_buy
+
+        if index > 0:
+            return math.toNearest(start_position + start_position * settings.INTERVAL * fib(index) , self.instrument['tickSize'])
+        else:
+            return math.toNearest(start_position - start_position * settings.INTERVAL * fib(index),
+                                  self.instrument['tickSize'])
+
+
     ###
     # Orders
     ###
@@ -361,6 +389,18 @@ class OrderManager:
             self.converge_orders(buy_orders, sell_orders, True)
 
         return self.converge_orders(buy_orders, sell_orders)
+
+
+    def prepare_fibonacci_order(self, index):
+        if settings.EXPON_ORDER_SIZE:
+            quantity = settings.ORDER_START_SIZE
+        else:
+            quantity = settings.ORDER_START_SIZE * 2 ** (index - 1)
+
+        price = self.get_fibonacci_price_offset(index)
+
+        return {'price': price, 'orderQty': quantity, 'side': "Buy" if index < 0 else "Sell"}
+
 
     def prepare_order(self, index):
         """Create an order object."""
@@ -579,6 +619,15 @@ class OrderManager:
 #
 # Helpers
 #
+
+def fib(n):
+    n = abs(n)
+    if n == 1:
+        return 0
+    elif n == 2:
+        return 1
+    else:
+        return fib(n - 1) + fib(n - 2)
 
 
 def XBt_to_XBT(XBt):
