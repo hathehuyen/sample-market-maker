@@ -488,15 +488,16 @@ class OrderManager:
                 #         abs((desired_order['price'] / order['price']) - 1) > settings.RELIST_INTERVAL):
                 #     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                 #                      'price': desired_order['price'], 'side': order['side']})
-                if desired_order['orderQty'] != order['leavesQty']:
+                if martin_signal:
+                    to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
+                                     'price': desired_order['price'], 'side': order['side']})
+
+                elif desired_order['orderQty'] != order['leavesQty']:
                     to_amend.append(
                         {'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                          'price': order['price'], 'side': order['side']})
                 elif desired_order['price'] != order['price'] and abs((desired_order['price'] / order['price']) - 1) > settings.RELIST_INTERVAL:
                         # If price has changed, and the change is more than our RELIST_INTERVAL, amend.
-                    to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
-                                     'price': desired_order['price'], 'side': order['side']})
-                elif martin_signal:
                     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                                      'price': desired_order['price'], 'side': order['side']})
 
