@@ -330,9 +330,14 @@ class OrderManager:
             if index < 0 and start_position > self.start_position_sell:
                 start_position = self.start_position_buy
 
+        print index
         if index > 0:
+            print fib(index)
+            print start_position + start_position * settings.INTERVAL * fib(index)
             return math.toNearest(start_position + start_position * settings.INTERVAL * fib(index) , self.instrument['tickSize'])
         else:
+            print fib(index)
+            print start_position + start_position * settings.INTERVAL * fib(index)
             return math.toNearest(start_position - start_position * settings.INTERVAL * fib(index),
                                   self.instrument['tickSize'])
 
@@ -400,7 +405,7 @@ class OrderManager:
 
     def prepare_fibonacci_order(self, index):
         if settings.EXPON_ORDER_SIZE:
-            quantity = settings.ORDER_START_SIZE * 2 ** abs(index - 1)
+            quantity = settings.ORDER_START_SIZE * 2 ** (abs(index) - 1)
         else:
             quantity = settings.ORDER_START_SIZE + ((abs(index) - 1) * settings.ORDER_STEP_SIZE)
 
