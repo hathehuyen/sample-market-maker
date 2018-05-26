@@ -424,7 +424,7 @@ class OrderManager:
 
         price = self.get_fibonacci_price_offset(index)
 
-        if settings.MIN_ORDER_SIZE:
+        if settings.MIN_ORDER_SIZE and quantity < settings.MIN_ORDER_SIZE:
             quantity = settings.MIN_ORDER_SIZE
 
         return {'price': price, 'orderQty': quantity, 'side': "Buy" if index < 0 else "Sell"}
