@@ -331,11 +331,11 @@ class OrderManager:
         print(index)
         if index > 0:
             print(fib(index))
-            print(start_position + start_position * settings.INTERVAL * fib(index))
+            print(start_position + start_position * settings.INTERVAL * (fib(index) - 1))
             return math.toNearest(start_position + start_position * settings.INTERVAL * fib(index) , self.instrument['tickSize'])
         else:
             print(fib(index))
-            print(start_position - start_position * settings.INTERVAL * fib(index))
+            print(start_position - start_position * settings.INTERVAL * (fib(index) - 1))
             return math.toNearest(start_position - start_position * settings.INTERVAL * fib(index),
                                   self.instrument['tickSize'])
 
@@ -634,9 +634,9 @@ class OrderManager:
 def fib(n):
     n = abs(n)
     if n == 1:
-        return 0
-    elif n == 2:
         return 1
+    elif n == 2:
+        return 2
     else:
         return fib(n - 1) + fib(n - 2)
 
