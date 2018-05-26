@@ -206,7 +206,6 @@ class OrderManager:
         atexit.register(self.exit)
         signal.signal(signal.SIGTERM, self.exit)
         self.martin_signal = False
-        self.balance_signal = False
         self.tick_cache = []
 
         logger.info("Using symbol %s." % self.exchange.symbol)
@@ -369,40 +368,19 @@ class OrderManager:
                     sell_orders.append(self.prepare_order(i))
 
         #balance position
+        if settings.KEEP_BALANCE and settings.MIN_BALANCE_VOLUME < abs(position['currentQty']):
+            if position['currentQty'] > 0 and cost < sell_orders[-1]['price']:
+                sell_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 3)
+                sell_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 3)
+                sell_orders[-3]['orderQty'] = int(abs(position['currentQty']) / 3)
 
-        # if position['currentQty'] > 0 and position['currentQty'] > sell_orders[-1]['orderQty']:
-        #     # print("cost price %f" % (cost))
-        #     # print("current quanlity %d" % (sell_orders[-1]['orderQty']))
-        #     # print("adjust order quanlity to %d" % (position['currentQty']))
-        #     sell_orders[-1]['orderQty'] = abs(position['currentQty'])
-        #
-        # if position['currentQty'] < 0 and  abs(position['currentQty']) > buy_orders[-1]['orderQty']:
-        #     # print("cost price %f" % (cost))
-        #     # print("current quanlity %d" % (buy_orders[-1]['orderQty']))
-        #     # print("adjust order quanlity to %d" % (position['currentQty']))
-        #     buy_orders[-1]['orderQty'] = abs(position['currentQty'])
+            if position['currentQty'] < 0 and cost > buy_orders[-1]['price']:
+                buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 3)
+                buy_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 3)
+                buy_orders[-3]['orderQty'] = int(abs(position['currentQty']) / 3)
 
         if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
             self.martin_signal = False
-
-        if settings.KEEP_BALANCE and settings.MIN_BALANCE_VOLUME > abs(position['currentQty']) and self.balance_signal:
-            self.balance_signal = False
-
-        if settings.KEEP_BALANCE and settings.MIN_BALANCE_VOLUME < abs(position['currentQty']) and not self.balance_signal:
-            if position['currentQty'] > 0 and cost < sell_orders[-1]['price']:
-                sell_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 3 )
-                sell_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 3 )
-                sell_orders[-3]['orderQty'] = int(abs(position['currentQty']) / 3 )
-                self.balance_signal = True
-                self.converge_orders(buy_orders, sell_orders, True)
-
-            if position['currentQty'] < 0 and cost > buy_orders[-1]['price']:
-                buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 3 )
-                buy_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 3 )
-                buy_orders[-3]['orderQty'] = int(abs(position['currentQty']) / 3 )
-                self.balance_signal = True
-                self.converge_orders(buy_orders, sell_orders, True)
-
 
         if self.long_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost < sell_orders[-1]['price'] and not self.martin_signal:
             sell_orders[-1]['orderQty'] = abs(position['currentQty'])
