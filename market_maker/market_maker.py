@@ -384,7 +384,7 @@ class OrderManager:
         if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
             self.martin_signal = False
 
-        if settings.KEEP_BALANCE and settings.MIN_BALANCE_VOLUME < abs(position['currentQty']) and self.balance_signal:
+        if settings.KEEP_BALANCE and settings.MIN_BALANCE_VOLUME > abs(position['currentQty']) and self.balance_signal:
             self.balance_signal = False
 
         if settings.KEEP_BALANCE and settings.MIN_BALANCE_VOLUME < abs(position['currentQty']) and not self.balance_signal:
