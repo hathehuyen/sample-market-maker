@@ -207,6 +207,7 @@ class OrderManager:
         signal.signal(signal.SIGTERM, self.exit)
         self.martin_signal = False
         self.balance_signal = False
+        self.tick_cache = []
 
         logger.info("Using symbol %s." % self.exchange.symbol)
 
@@ -369,17 +370,17 @@ class OrderManager:
 
         #balance position
 
-        if position['currentQty'] > 0 and position['currentQty'] > sell_orders[-1]['orderQty']:
-            # print("cost price %f" % (cost))
-            # print("current quanlity %d" % (sell_orders[-1]['orderQty']))
-            # print("adjust order quanlity to %d" % (position['currentQty']))
-            sell_orders[-1]['orderQty'] = abs(position['currentQty'])
-
-        if position['currentQty'] < 0 and  abs(position['currentQty']) > buy_orders[-1]['orderQty']:
-            # print("cost price %f" % (cost))
-            # print("current quanlity %d" % (buy_orders[-1]['orderQty']))
-            # print("adjust order quanlity to %d" % (position['currentQty']))
-            buy_orders[-1]['orderQty'] = abs(position['currentQty'])
+        # if position['currentQty'] > 0 and position['currentQty'] > sell_orders[-1]['orderQty']:
+        #     # print("cost price %f" % (cost))
+        #     # print("current quanlity %d" % (sell_orders[-1]['orderQty']))
+        #     # print("adjust order quanlity to %d" % (position['currentQty']))
+        #     sell_orders[-1]['orderQty'] = abs(position['currentQty'])
+        #
+        # if position['currentQty'] < 0 and  abs(position['currentQty']) > buy_orders[-1]['orderQty']:
+        #     # print("cost price %f" % (cost))
+        #     # print("current quanlity %d" % (buy_orders[-1]['orderQty']))
+        #     # print("adjust order quanlity to %d" % (position['currentQty']))
+        #     buy_orders[-1]['orderQty'] = abs(position['currentQty'])
 
         if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
             self.martin_signal = False
@@ -575,6 +576,8 @@ class OrderManager:
 
         # Get ticker, which sets price offsets and prints some debugging info.
         ticker = self.get_ticker()
+
+
 
 
         # Sanity check:
