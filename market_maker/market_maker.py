@@ -355,7 +355,7 @@ class OrderManager:
         # a new order is created in the inside. If we did it inside-out, all orders would be amended
         # down and a new order would be created at the outside.
         if not self.check_stable():
-            print 'Current not stable'
+            print('Current not stable')
             return
 
 
