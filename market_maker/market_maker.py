@@ -402,8 +402,10 @@ class OrderManager:
         if position['currentQty'] > 0:
 
             if position['currentQty'] < self.last_position:
+                self.last_position = position['currentQty']
                 self.converge_orders(buy_orders, sell_orders)
             elif position['currentQty'] > self.last_position and abs(position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
+                self.last_position = position['currentQty']
                 sell_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.converge_orders(buy_orders, sell_orders)
             elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < sell_orders[-1]['price']:
@@ -411,26 +413,23 @@ class OrderManager:
                 sell_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
                 self.converge_sell_orders(sell_orders)
 
-            self.last_position = position['currentQty']
-            return
-
-        if position['currentQty'] < 0 :
+        elif position['currentQty'] < 0 :
 
             if position['currentQty'] > self.last_position:
+                self.last_position = position['currentQty']
                 self.converge_orders(buy_orders, sell_orders)
             elif position['currentQty'] < self.last_position and abs(
                     position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
                 buy_orders[-1]['orderQty'] = abs(position['currentQty'])
+                self.last_position = position['currentQty']
                 self.converge_orders(buy_orders, sell_orders)
             elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < buy_orders[-1]['price']:
                 buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
                 buy_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
                 self.converge_buy_orders(buy_orders)
 
-            self.last_position = position['currentQty']
-            return
-
-        return self.converge_orders(buy_orders, sell_orders)
+        else:
+            return self.converge_orders(buy_orders, sell_orders)
 
 
     def prepare_fibonacci_order(self, index):
