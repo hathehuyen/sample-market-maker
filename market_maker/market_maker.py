@@ -410,6 +410,7 @@ class OrderManager:
                 sell_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
                 sell_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
                 self.converge_sell_orders(sell_orders)
+            return
 
         if position['currentQty'] < 0 and position['currentQty'] != self.last_position:
             self.last_position = position['currentQty']
@@ -424,6 +425,9 @@ class OrderManager:
                 buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
                 buy_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
                 self.converge_buy_orders(buy_orders)
+            return
+
+        return self.converge_orders(buy_orders, sell_orders)
 
 
     def prepare_fibonacci_order(self, index):
