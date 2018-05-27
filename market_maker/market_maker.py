@@ -406,7 +406,7 @@ class OrderManager:
             elif position['currentQty'] > self.last_position and abs(position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
                 sell_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.converge_orders(buy_orders, sell_orders)
-            elif position['currentQty'] > self.last_position and abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < sell_orders[-1]['price']:
+            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < sell_orders[-1]['price']:
                 sell_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
                 sell_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
                 self.converge_sell_orders(sell_orders)
@@ -422,7 +422,7 @@ class OrderManager:
                     position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
                 buy_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.converge_orders(buy_orders, sell_orders)
-            elif position['currentQty'] < self.last_position and abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < buy_orders[-1]['price']:
+            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < buy_orders[-1]['price']:
                 buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
                 buy_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
                 self.converge_buy_orders(buy_orders)
