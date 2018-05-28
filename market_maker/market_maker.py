@@ -423,7 +423,8 @@ class OrderManager:
 
         elif position['currentQty'] < 0 :
 
-            if position['currentQty'] > self.last_position:
+            if position['currentQty'] > self.last_position and abs(
+                    position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
                 self.last_position = position['currentQty']
                 self.converge_orders(buy_orders, sell_orders)
             elif position['currentQty'] < self.last_position and abs(
