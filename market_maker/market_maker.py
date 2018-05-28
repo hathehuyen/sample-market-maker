@@ -359,7 +359,6 @@ class OrderManager:
             print('Current not stable')
             return
 
-
         position = self.exchange.get_position()
         cost = 0
         if position['currentQty'] != 0:
@@ -400,6 +399,8 @@ class OrderManager:
             self.converge_orders(buy_orders, sell_orders, True)
             return
 
+
+
         if position['currentQty'] > 0:
 
             if position['currentQty'] < self.last_position and abs(position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
@@ -409,7 +410,7 @@ class OrderManager:
                 self.last_position = position['currentQty']
                 sell_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.converge_orders(buy_orders, sell_orders)
-            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < sell_orders[-1]['price'] and not self.balance_signal:
+            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < self.start_position_mid  and not self.balance_signal:
                 self.balance_signal = True
                 self.last_position = position['currentQty']
                 sell_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
@@ -429,7 +430,7 @@ class OrderManager:
                 buy_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.last_position = position['currentQty']
                 self.converge_orders(buy_orders, sell_orders)
-            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost > buy_orders[-1]['price'] and not self.balance_signal:
+            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost > self.start_position_mid and not self.balance_signal:
                 self.balance_signal = True
                 self.last_position = position['currentQty']
                 buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
