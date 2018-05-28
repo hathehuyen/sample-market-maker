@@ -429,7 +429,7 @@ class OrderManager:
                 buy_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.last_position = position['currentQty']
                 self.converge_orders(buy_orders, sell_orders)
-            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < buy_orders[-1]['price'] and not self.balance_signal:
+            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost > buy_orders[-1]['price'] and not self.balance_signal:
                 self.balance_signal = True
                 self.last_position = position['currentQty']
                 buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
