@@ -65,6 +65,7 @@ class BitMEXWebsocket():
         self.__wait_for_symbol(symbol)
         if self.shouldAuth:
             self.__wait_for_account()
+        self.disableAutoCancel()
         self.logger.info('Got all market data. Starting.')
 
     #
@@ -126,6 +127,9 @@ class BitMEXWebsocket():
 
     def recent_trades(self):
         return self.data['trade']
+
+    def disableAutoCancel(self):
+        self.__send_command("cancelAllAfter", [0])
 
     #
     # Lifecycle methods
