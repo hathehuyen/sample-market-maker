@@ -345,7 +345,6 @@ class OrderManager:
     ###
     # Orders
     ###
-
     def place_orders(self):
         """Create order items for use in convergence."""
 
@@ -355,9 +354,9 @@ class OrderManager:
         # then we match orders from the outside in, ensuring the fewest number of orders are amended and only
         # a new order is created in the inside. If we did it inside-out, all orders would be amended
         # down and a new order would be created at the outside.
-        if not self.check_stable():
-            print('Current not stable')
-            return
+        # if not self.check_stable():
+        #     print('Current not stable')
+        #     return
 
         position = self.exchange.get_position()
         cost = 0
@@ -398,7 +397,6 @@ class OrderManager:
             self.last_position = position['currentQty']
             self.converge_orders(buy_orders, sell_orders, True)
             return
-
 
 
         if position['currentQty'] > 0:
