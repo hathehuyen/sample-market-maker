@@ -412,8 +412,8 @@ class OrderManager:
                 print("keep balance")
                 self.balance_signal = True
                 self.last_position = position['currentQty']
-                sell_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
-                sell_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
+                sell_orders[-1]['orderQty'] = int(abs(position['currentQty']) *  2 / 3)
+                sell_orders[-2]['orderQty'] = abs(position['currentQty']) - sell_orders[-1]['orderQty']
                 self.converge_sell_orders(sell_orders)
             elif position['currentQty'] != self.last_position and self.balance_signal:
                 self.balance_signal = False
@@ -433,8 +433,8 @@ class OrderManager:
             elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost > self.start_position_mid and not self.balance_signal:
                 self.balance_signal = True
                 self.last_position = position['currentQty']
-                buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) / 2)
-                buy_orders[-2]['orderQty'] = int(abs(position['currentQty']) / 2)
+                buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) *  2 / 3)
+                buy_orders[-2]['orderQty'] = abs(position['currentQty']) - sell_orders[-1]['orderQty']
                 self.converge_buy_orders(buy_orders)
             elif position['currentQty'] != self.last_position and self.balance_signal:
                 self.balance_signal = False
