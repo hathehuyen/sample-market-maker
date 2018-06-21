@@ -357,7 +357,7 @@ class OrderManager:
         # if not self.check_stable():
         #     print('Current not stable')
         #     return
-
+        existing_orders = self.exchange.get_orders()
         position = self.exchange.get_position()
         cost = 0
         if position['currentQty'] != 0:
@@ -408,7 +408,8 @@ class OrderManager:
                 self.last_position = position['currentQty']
                 sell_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.converge_orders(buy_orders, sell_orders)
-            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < self.start_position_mid  and not self.balance_signal:
+            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < self.start_position_mid and \
+                (not self.balance_signal or len(existing_orders) == 0):
                 print("keep balance")
                 self.balance_signal = True
                 self.last_position = position['currentQty']
@@ -417,6 +418,7 @@ class OrderManager:
                 self.converge_sell_orders(sell_orders)
             elif position['currentQty'] != self.last_position and self.balance_signal:
                 self.balance_signal = False
+
 
 
         elif position['currentQty'] < 0 :
@@ -430,7 +432,8 @@ class OrderManager:
                 buy_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.last_position = position['currentQty']
                 self.converge_orders(buy_orders, sell_orders)
-            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost > self.start_position_mid and not self.balance_signal:
+            elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost > self.start_position_mid and \
+                (not self.balance_signal or len(existing_orders) == 0):
                 self.balance_signal = True
                 self.last_position = position['currentQty']
                 buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) *  2 / 3)
