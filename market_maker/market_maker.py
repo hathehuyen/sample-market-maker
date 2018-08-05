@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from time import sleep
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from os.path import getmtime
 import random
 import requests
@@ -222,6 +222,9 @@ class OrderManager:
             logger.info("Order Manager initializing, connecting to BitMEX. Live run: executing real trades.")
 
         self.start_time = datetime.now()
+        self.last_position_change_time = datetime.now()
+        self.last_reset_time = datetime.now()
+        self.resetting = False
         self.instrument = self.exchange.get_instrument()
         self.starting_qty = self.exchange.get_delta()
         self.running_qty = self.starting_qty
@@ -363,7 +366,19 @@ class OrderManager:
         if position['currentQty'] != 0:
             cost = float(position['avgCostPrice'])
 
-        print('last position %d, now position %d, balance %r, cost %f, midprice %f' % (self.last_position, position['currentQty'], self.balance_signal, cost, self.start_position_mid))
+        if self.last_position != position['currentQty']:
+            self.last_position_change_time = datetime.now()
+        if not self.resetting:
+            if datetime.now() - self.last_position_change_time >= timedelta(minutes=settings.RESET_TIME) and \
+                    datetime.now() - self.last_reset_time >= timedelta(minutes=settings.RESET_TIME):
+                self.last_reset_time = datetime.now()
+                self.resetting = True
+                self.reset()
+                return
+        self.resetting = False
+
+        print('last position %d, now position %d, balance %r, cost %f, midprice %f' %
+              (self.last_position, position['currentQty'], self.balance_signal, cost, self.start_position_mid))
 
         if settings.FIBONACCI_METHOD:
             for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
