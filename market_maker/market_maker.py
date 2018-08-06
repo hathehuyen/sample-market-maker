@@ -365,6 +365,9 @@ class OrderManager:
         cost = 0
         if position['currentQty'] != 0:
             cost = float(position['avgCostPrice'])
+        print('last position %d, now position %d, balance %r, martin %r cost %f, midprice %f' %
+              (self.last_position, position['currentQty'], self.balance_signal,
+               self.martin_signal, cost, self.start_position_mid))
 
         if self.last_position != position['currentQty']:
             self.last_position_change_time = datetime.now()
@@ -376,9 +379,6 @@ class OrderManager:
                 self.reset()
                 return
         self.resetting = False
-
-        print('last position %d, now position %d, balance %r, cost %f, midprice %f' %
-              (self.last_position, position['currentQty'], self.balance_signal, cost, self.start_position_mid))
 
         if settings.FIBONACCI_METHOD:
             for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
@@ -413,7 +413,6 @@ class OrderManager:
             self.converge_orders(buy_orders, sell_orders, True)
             return
 
-
         if position['currentQty'] > 0:
 
             if position['currentQty'] < self.last_position and abs(position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
@@ -433,8 +432,6 @@ class OrderManager:
                 self.converge_sell_orders(sell_orders)
             elif position['currentQty'] != self.last_position and self.balance_signal:
                 self.balance_signal = False
-
-
 
         elif position['currentQty'] < 0 :
 
