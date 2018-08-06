@@ -424,7 +424,7 @@ class OrderManager:
                 sell_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.converge_orders(buy_orders, sell_orders)
             elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < self.start_position_mid and \
-                (not self.balance_signal or len(existing_orders) == 0):
+                    (not self.balance_signal or len(existing_orders) == 0):
                 print("keep balance")
                 self.balance_signal = True
                 self.last_position = position['currentQty']
@@ -434,7 +434,7 @@ class OrderManager:
             elif position['currentQty'] != self.last_position and self.balance_signal:
                 self.balance_signal = False
 
-        elif position['currentQty'] < 0 :
+        elif position['currentQty'] < 0:
 
             if position['currentQty'] > self.last_position and abs(
                     position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
@@ -446,7 +446,7 @@ class OrderManager:
                 self.last_position = position['currentQty']
                 self.converge_orders(buy_orders, sell_orders)
             elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost > self.start_position_mid and \
-                (not self.balance_signal or len(existing_orders) == 0):
+                    (not self.balance_signal or len(existing_orders) == 0):
                 self.balance_signal = True
                 self.last_position = position['currentQty']
                 buy_orders[-1]['orderQty'] = int(abs(position['currentQty']) *  2 / 3)
@@ -457,6 +457,8 @@ class OrderManager:
 
         else:
             return self.converge_orders(buy_orders, sell_orders)
+        print('No condition match')
+        return self.converge_orders(buy_orders, sell_orders)
 
 
     def prepare_fibonacci_order(self, index):
