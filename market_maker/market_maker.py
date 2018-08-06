@@ -392,7 +392,8 @@ class OrderManager:
                     buy_orders.append(self.prepare_order(-i))
                 if not self.short_position_limit_exceeded():
                     sell_orders.append(self.prepare_order(i))
-
+        print(buy_orders)
+        print(sell_orders)
         if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
             self.martin_signal = False
 
