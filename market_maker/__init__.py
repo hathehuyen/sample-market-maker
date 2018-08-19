@@ -21,7 +21,7 @@ def run():
             from market_maker import market_maker
             market_maker.run()
         except ImportError:
-            print('Can\'t find settings.py. Run "marketmaker setup" to create project.')
+            print('Can\'t find settings.py. Run "marketmaker setup" to projectcreate project.')
 
 
 def copy_files():
