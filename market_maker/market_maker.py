@@ -455,7 +455,7 @@ class OrderManager:
         else:
             return self.converge_orders(buy_orders, sell_orders)
         print('No condition match')
-        return self.converge_orders(buy_orders, sell_orders)
+        return self.converge_orders(buy_orders, sell_orders, self.martin_signal)
 
 
     def prepare_fibonacci_order(self, index):
