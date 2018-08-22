@@ -339,7 +339,8 @@ class OrderManager:
                 start_position = self.start_position_buy
 
         if index > 0:
-            return math.toNearest(start_position + start_position * settings.INTERVAL * (fib(index) - 1) , self.instrument['tickSize'])
+            return math.toNearest(start_position + start_position * settings.INTERVAL * (fib(index) - 1),
+                                  self.instrument['tickSize'])
         else:
             return math.toNearest(start_position - start_position * settings.INTERVAL * (fib(index) - 1),
                                   self.instrument['tickSize'])
@@ -397,12 +398,14 @@ class OrderManager:
         if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
             self.martin_signal = False
 
-        if self.long_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost < sell_orders[-1]['price'] and not self.martin_signal:
+        if self.long_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost < sell_orders[-1]['price'] and \
+                not self.martin_signal:
             sell_orders[-1]['orderQty'] = abs(position['currentQty'])
             self.martin_signal = True
             return self.converge_orders(buy_orders, sell_orders, True)
 
-        if self.short_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost > buy_orders[-1]['price'] and not self.martin_signal:
+        if self.short_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost > buy_orders[-1]['price'] and \
+                not self.martin_signal:
             buy_orders[-1]['orderQty'] = abs(position['currentQty'])
             self.martin_signal = True
             return self.converge_orders(buy_orders, sell_orders, True)
@@ -413,12 +416,14 @@ class OrderManager:
 
         if position['currentQty'] > 0:
 
-            if position['currentQty'] < self.last_position and abs(position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
+            if position['currentQty'] < self.last_position and \
+                    abs(position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
                 self.last_position = position['currentQty']
                 return self.converge_orders(buy_orders, sell_orders)
-            elif position['currentQty'] > self.last_position and abs(position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
+            elif position['currentQty'] > self.last_position and \
+                    abs(position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
                 self.last_position = position['currentQty']
-                sell_orders[-1]['orderQty'] = abs(position['currentQty'])
+                # sell_orders[-1]['orderQty'] = abs(position['currentQty'])
                 return self.converge_orders(buy_orders, sell_orders)
             elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost < self.start_position_mid and \
                     (not self.balance_signal or len(existing_orders) == 0):
@@ -439,7 +444,7 @@ class OrderManager:
                 return self.converge_orders(buy_orders, sell_orders)
             elif position['currentQty'] < self.last_position and abs(
                     position['currentQty']) <= settings.MIN_BALANCE_VOLUME:
-                buy_orders[-1]['orderQty'] = abs(position['currentQty'])
+                # buy_orders[-1]['orderQty'] = abs(position['currentQty'])
                 self.last_position = position['currentQty']
                 return self.converge_orders(buy_orders, sell_orders)
             elif abs(position['currentQty']) > settings.MIN_BALANCE_VOLUME and cost > self.start_position_mid and \
@@ -504,8 +509,9 @@ class OrderManager:
                     desired_order = sell_orders[sells_matched]
                     sells_matched += 1
 
-                    to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
-                                         'price': desired_order['price'], 'side': order['side']})
+                    to_amend.append({'orderID': order['orderID'],
+                                     'orderQty': order['cumQty'] + desired_order['orderQty'],
+                                     'price': desired_order['price'], 'side': order['side']})
 
             except IndexError:
                 # Will throw if there isn't a desired order to match. In that case, cancel it.
