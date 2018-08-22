@@ -462,7 +462,6 @@ class OrderManager:
         print('No condition match')
         return self.converge_orders(buy_orders, sell_orders, self.martin_signal)
 
-
     def prepare_fibonacci_order(self, index):
         if settings.EXPON_ORDER_SIZE:
             quantity = settings.ORDER_START_SIZE * 2 ** (abs(index) - 1)
@@ -476,7 +475,6 @@ class OrderManager:
 
         return {'price': price, 'orderQty': quantity, 'side': "Buy" if index < 0 else "Sell"}
 
-
     def prepare_order(self, index):
         """Create an order object."""
 
@@ -488,7 +486,6 @@ class OrderManager:
         price = self.get_price_offset(index)
 
         return {'price': price, 'orderQty': quantity, 'side': "Buy" if index < 0 else "Sell"}
-
 
     def converge_sell_orders(self, sell_orders):
 
@@ -559,9 +556,7 @@ class OrderManager:
                 logger.info("%4s %d @ %.*f" % (order['side'], order['leavesQty'], tickLog, order['price']))
             self.exchange.cancel_bulk_orders(to_cancel)
 
-
     def converge_buy_orders(self, buy_orders):
-
         tickLog = self.exchange.get_instrument()['tickLog']
         to_amend = []
         to_create = []
