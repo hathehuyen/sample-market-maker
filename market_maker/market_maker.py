@@ -415,7 +415,7 @@ class OrderManager:
             return self.converge_orders(buy_orders, sell_orders, True)
 
         if position['currentQty'] > 0:
-            if abs(position['currentQty']) > sell_orders[-1]['orderQty']:
+            if abs(position['currentQty']) > sell_orders[-1]['orderQty'] and cost < self.start_position_mid:
                 sell_orders[-1]['orderQty'] = settings.ORDER_START_SIZE * 2
 
             # if position['currentQty'] < self.last_position and \
@@ -439,7 +439,7 @@ class OrderManager:
             #     self.balance_signal = False
 
         elif position['currentQty'] < 0:
-            if abs(position['currentQty']) > buy_orders[-1]['orderQty']:
+            if abs(position['currentQty']) > buy_orders[-1]['orderQty'] and cost > self.start_position_mid:
                 buy_orders[-1]['orderQty'] = settings.ORDER_START_SIZE * 2
 
             # if position['currentQty'] > self.last_position and abs(
