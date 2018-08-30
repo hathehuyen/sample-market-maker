@@ -393,8 +393,6 @@ class OrderManager:
                     buy_orders.append(self.prepare_order(-i))
                 if not self.short_position_limit_exceeded():
                     sell_orders.append(self.prepare_order(i))
-        print(buy_orders)
-        print(sell_orders)
         if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
             self.martin_signal = False
 
@@ -416,6 +414,7 @@ class OrderManager:
 
         if position['currentQty'] > 0:
             if abs(position['currentQty']) > sell_orders[-1]['orderQty'] and cost < self.start_position_mid:
+                self.last_position = position['currentQty']
                 sell_orders[-1]['orderQty'] = settings.ORDER_START_SIZE * 2
 
             # if position['currentQty'] < self.last_position and \
@@ -440,6 +439,7 @@ class OrderManager:
 
         elif position['currentQty'] < 0:
             if abs(position['currentQty']) > buy_orders[-1]['orderQty'] and cost > self.start_position_mid:
+                self.last_position = position['currentQty']
                 buy_orders[-1]['orderQty'] = settings.ORDER_START_SIZE * 2
 
             # if position['currentQty'] > self.last_position and abs(
@@ -462,7 +462,11 @@ class OrderManager:
             #     self.balance_signal = False
 
         else:
+            print(buy_orders)
+            print(sell_orders)
             return self.converge_orders(buy_orders, sell_orders)
+        print(buy_orders)
+        print(sell_orders)
         print('No condition match')
         return self.converge_orders(buy_orders, sell_orders, self.martin_signal)
 
