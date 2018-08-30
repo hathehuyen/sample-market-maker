@@ -461,13 +461,10 @@ class OrderManager:
             # elif position['currentQty'] != self.last_position and self.balance_signal:
             #     self.balance_signal = False
 
-        else:
-            print(buy_orders)
-            print(sell_orders)
-            return self.converge_orders(buy_orders, sell_orders)
         print(buy_orders)
         print(sell_orders)
         print('No condition match')
+        self.last_position = position['currentQty']
         return self.converge_orders(buy_orders, sell_orders, self.martin_signal)
 
     def prepare_fibonacci_order(self, index):
