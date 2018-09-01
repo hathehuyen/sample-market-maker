@@ -413,10 +413,9 @@ class OrderManager:
         #     return self.converge_orders(buy_orders, sell_orders, True)
 
         if position['currentQty'] == 0:
-            sell_price = math.toNearest(self.start_position_sell + self.start_position_sell * settings.WAIT_PCT,
-                                        self.instrument['tickSize'])
-            buy_price = math.toNearest(self.start_position_buy - self.start_position_buy * settings.WAIT_PCT,
-                                       self.instrument['tickSize'])
+            ticker = self.exchange.get_ticker()
+            sell_price = math.toNearest(ticker['sell'] + ticker['sell'] * settings.WAIT_PCT, self.instrument['tickSize'])
+            buy_price = math.toNearest(ticker['buy'] - ticker['buy'] * settings.WAIT_PCT, self.instrument['tickSize'])
             buy_orders.append({'price': buy_price, 'orderQty': settings.ORDER_SIZE, 'side': "Buy"})
             sell_orders.append({'price': sell_price, 'orderQty': settings.ORDER_SIZE, 'side': "Sell"})
 
