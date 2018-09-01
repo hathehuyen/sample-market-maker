@@ -367,8 +367,8 @@ class OrderManager:
         cost = 0
         if position['currentQty'] != 0:
             cost = float(position['avgCostPrice'])
-        print('position %d, cost %f, midprice %f' %
-              (position['currentQty'], cost, self.start_position_mid))
+        print('position %d, cost %f, midprice %f, sl %r' %
+              (position['currentQty'], cost, self.start_position_mid, self.sl))
 
         if self.last_position != position['currentQty']:
             self.last_position_change_time = datetime.now()
