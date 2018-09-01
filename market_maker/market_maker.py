@@ -399,6 +399,8 @@ class OrderManager:
 
             if not self.sl:
                 expected_price = math.toNearest(cost + cost * settings.PROFIT_PCT, self.instrument['tickSize'])
+                if expected_price < ticker['sell']:
+                    expected_price = math.toNearest(ticker['sell'], self.instrument['tickSize'])
             else:
                 expected_price = math.toNearest(ticker['sell'], self.instrument['tickSize'])
 
@@ -411,6 +413,8 @@ class OrderManager:
 
             if not self.sl:
                 expected_price = math.toNearest(cost - cost * settings.PROFIT_PCT, self.instrument['tickSize'])
+                if expected_price > ticker['buy']:
+                    expected_price = math.toNearest(ticker['buy'], self.instrument['tickSize'])
             else:
                 expected_price = math.toNearest(ticker['buy'], self.instrument['tickSize'])
 
