@@ -225,6 +225,7 @@ class OrderManager:
         self.last_position_change_time = datetime.now()
         self.last_reset_time = datetime.now()
         self.resetting = False
+        self.sl = False
         self.instrument = self.exchange.get_instrument()
         self.starting_qty = self.exchange.get_delta()
         self.running_qty = self.starting_qty
@@ -371,60 +372,48 @@ class OrderManager:
 
         if self.last_position != position['currentQty']:
             self.last_position_change_time = datetime.now()
-        if not self.resetting:
-            if datetime.now() - self.last_position_change_time >= timedelta(minutes=settings.RESET_TIME) and \
-                    datetime.now() - self.last_reset_time >= timedelta(minutes=settings.RESET_TIME):
-                self.last_reset_time = datetime.now()
-                self.resetting = True
-                self.reset()
-                return
-        self.resetting = False
 
-        # if settings.FIBONACCI_METHOD:
-        #     for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
-        #         if not self.long_position_limit_exceeded():
-        #             buy_orders.append(self.prepare_fibonacci_order(-i))
-        #         if not self.short_position_limit_exceeded():
-        #             sell_orders.append(self.prepare_fibonacci_order(i))
-        # else:
-        #     for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
-        #         if not self.long_position_limit_exceeded():
-        #             buy_orders.append(self.prepare_order(-i))
-        #         if not self.short_position_limit_exceeded():
-        #             sell_orders.append(self.prepare_order(i))
+        # if not self.resetting:
+        #     if datetime.now() - self.last_position_change_time >= timedelta(minutes=settings.RESET_TIME) and \
+        #             datetime.now() - self.last_reset_time >= timedelta(minutes=settings.RESET_TIME):
+        #         self.last_reset_time = datetime.now()
+        #         self.resetting = True
+        #         self.reset()
+        #         return
+        # self.resetting = False
 
-        # if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
-        #     self.martin_signal = False
+        ticker = self.exchange.get_ticker()
 
-        # if self.long_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost < sell_orders[-1]['price'] and \
-        #         not self.martin_signal:
-        #     sell_orders[-1]['orderQty'] = abs(position['currentQty'])
-        #     self.martin_signal = True
-        #     return self.converge_orders(buy_orders, sell_orders, True)
-        #
-        # if self.short_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost > buy_orders[-1]['price'] and \
-        #         not self.martin_signal:
-        #     buy_orders[-1]['orderQty'] = abs(position['currentQty'])
-        #     self.martin_signal = True
-        #     return self.converge_orders(buy_orders, sell_orders, True)
-        #
-        # if abs(position['currentQty']) <= settings.RESET_LIST_LIMIT and position['currentQty'] != self.last_position:
-        #     self.last_position = position['currentQty']
-        #     return self.converge_orders(buy_orders, sell_orders, True)
-
+        # No position's open
         if position['currentQty'] == 0:
-            ticker = self.exchange.get_ticker()
             sell_price = math.toNearest(ticker['sell'] + ticker['sell'] * settings.WAIT_PCT, self.instrument['tickSize'])
             buy_price = math.toNearest(ticker['buy'] - ticker['buy'] * settings.WAIT_PCT, self.instrument['tickSize'])
             buy_orders.append({'price': buy_price, 'orderQty': settings.ORDER_SIZE, 'side': "Buy"})
             sell_orders.append({'price': sell_price, 'orderQty': settings.ORDER_SIZE, 'side': "Sell"})
-
+            self.sl = False
+        # Long position
         elif position['currentQty'] > 0:
-            expected_price = math.toNearest(cost + cost * settings.PROFIT_PCT, self.instrument['tickSize'])
-            sell_orders.append({'price': expected_price, 'orderQty': abs(position['currentQty']), 'side': "Sell"})
+            if cost - cost * settings.STOPLOSS_PCT > ticker['buy'] and \
+                    datetime.now() - self.last_position_change_time >= timedelta(minutes=settings.STOPLOSS_TIME):
+                self.sl = True
 
+            if not self.sl:
+                expected_price = math.toNearest(cost + cost * settings.PROFIT_PCT, self.instrument['tickSize'])
+            else:
+                expected_price = math.toNearest(ticker['sell'], self.instrument['tickSize'])
+
+            sell_orders.append({'price': expected_price, 'orderQty': abs(position['currentQty']), 'side': "Sell"})
+        # Short position
         else:
-            expected_price = math.toNearest(cost - cost * settings.PROFIT_PCT, self.instrument['tickSize'])
+            if cost + cost * settings.STOPLOSS_PCT < ticker['sell'] and \
+                    datetime.now() - self.last_position_change_time >= timedelta(minutes=settings.STOPLOSS_TIME):
+                self.sl = True
+
+            if not self.sl:
+                expected_price = math.toNearest(cost - cost * settings.PROFIT_PCT, self.instrument['tickSize'])
+            else:
+                expected_price = math.toNearest(ticker['buy'], self.instrument['tickSize'])
+
             buy_orders.append({'price': expected_price, 'orderQty': abs(position['currentQty']), 'side': "Buy"})
 
         print(buy_orders)
