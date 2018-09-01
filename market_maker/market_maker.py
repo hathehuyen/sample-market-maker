@@ -366,9 +366,8 @@ class OrderManager:
         cost = 0
         if position['currentQty'] != 0:
             cost = float(position['avgCostPrice'])
-        print('last position %d, now position %d, balance %r, martin %r cost %f, midprice %f' %
-              (self.last_position, position['currentQty'], self.balance_signal,
-               self.martin_signal, cost, self.start_position_mid))
+        print('position %d, cost %f, midprice %f' %
+              (position['currentQty'], cost, self.start_position_mid))
 
         if self.last_position != position['currentQty']:
             self.last_position_change_time = datetime.now()
@@ -414,8 +413,10 @@ class OrderManager:
         #     return self.converge_orders(buy_orders, sell_orders, True)
 
         if position['currentQty'] == 0:
-            buy_orders.append(self.prepare_order(-1))
-            sell_orders.append(self.prepare_order(1))
+            sell_price = self.start_position_sell + self.start_position_sell * settings.WAIT_PCT
+            buy_price = self.start_position_buy - self.start_position_buy * settings.WAIT_PCT
+            buy_orders.append({'price': buy_price, 'orderQty': settings.ORDER_SIZE, 'side': "Buy"})
+            sell_orders.append({'price': sell_price, 'orderQty': settings.ORDER_SIZE, 'side': "Sell"})
 
         elif position['currentQty'] > 0:
             expected_price = math.toNearest(cost + cost * settings.PROFIT_PCT, self.instrument['tickSize'])
