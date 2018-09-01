@@ -381,51 +381,52 @@ class OrderManager:
                 return
         self.resetting = False
 
-        if settings.FIBONACCI_METHOD:
-            for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
-                if not self.long_position_limit_exceeded():
-                    buy_orders.append(self.prepare_fibonacci_order(-i))
-                if not self.short_position_limit_exceeded():
-                    sell_orders.append(self.prepare_fibonacci_order(i))
+        # if settings.FIBONACCI_METHOD:
+        #     for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
+        #         if not self.long_position_limit_exceeded():
+        #             buy_orders.append(self.prepare_fibonacci_order(-i))
+        #         if not self.short_position_limit_exceeded():
+        #             sell_orders.append(self.prepare_fibonacci_order(i))
+        # else:
+        #     for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
+        #         if not self.long_position_limit_exceeded():
+        #             buy_orders.append(self.prepare_order(-i))
+        #         if not self.short_position_limit_exceeded():
+        #             sell_orders.append(self.prepare_order(i))
+
+        # if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
+        #     self.martin_signal = False
+
+        # if self.long_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost < sell_orders[-1]['price'] and \
+        #         not self.martin_signal:
+        #     sell_orders[-1]['orderQty'] = abs(position['currentQty'])
+        #     self.martin_signal = True
+        #     return self.converge_orders(buy_orders, sell_orders, True)
+        #
+        # if self.short_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost > buy_orders[-1]['price'] and \
+        #         not self.martin_signal:
+        #     buy_orders[-1]['orderQty'] = abs(position['currentQty'])
+        #     self.martin_signal = True
+        #     return self.converge_orders(buy_orders, sell_orders, True)
+        #
+        # if abs(position['currentQty']) <= settings.RESET_LIST_LIMIT and position['currentQty'] != self.last_position:
+        #     self.last_position = position['currentQty']
+        #     return self.converge_orders(buy_orders, sell_orders, True)
+
+        if position['currentQty'] == 0:
+            buy_orders.append(self.prepare_order(-1))
+            sell_orders.append(self.prepare_order(1))
+
+        elif position['currentQty'] > 0:
+            expected_price = math.toNearest(cost + cost * settings.PROFIT_PCT, self.instrument['tickSize'])
+            sell_orders.append({'price': expected_price, 'orderQty': abs(position['currentQty']), 'side': "Sell"})
+
         else:
-            for i in reversed(range(1, settings.ORDER_PAIRS + 1)):
-                if not self.long_position_limit_exceeded():
-                    buy_orders.append(self.prepare_order(-i))
-                if not self.short_position_limit_exceeded():
-                    sell_orders.append(self.prepare_order(i))
-        if not self.long_position_limit_exceeded() and not self.short_position_limit_exceeded():
-            self.martin_signal = False
-
-        if self.long_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost < sell_orders[-1]['price'] and \
-                not self.martin_signal:
-            sell_orders[-1]['orderQty'] = abs(position['currentQty'])
-            self.martin_signal = True
-            return self.converge_orders(buy_orders, sell_orders, True)
-
-        if self.short_position_limit_exceeded() and settings.MARTIN_STRATEGY and cost > buy_orders[-1]['price'] and \
-                not self.martin_signal:
-            buy_orders[-1]['orderQty'] = abs(position['currentQty'])
-            self.martin_signal = True
-            return self.converge_orders(buy_orders, sell_orders, True)
-
-        if abs(position['currentQty']) <= settings.RESET_LIST_LIMIT and position['currentQty'] != self.last_position:
-            self.last_position = position['currentQty']
-            return self.converge_orders(buy_orders, sell_orders, True)
-
-        if position['currentQty'] > 0:
-            if abs(position['currentQty']) > sell_orders[-1]['orderQty'] and cost < self.start_position_mid:
-                self.last_position = position['currentQty']
-                sell_orders[-1]['orderQty'] = settings.ORDER_START_SIZE * 2
-
-
-        elif position['currentQty'] < 0:
-            if abs(position['currentQty']) > buy_orders[-1]['orderQty'] and cost > self.start_position_mid:
-                self.last_position = position['currentQty']
-                buy_orders[-1]['orderQty'] = settings.ORDER_START_SIZE * 2
+            expected_price = math.toNearest(cost - cost * settings.PROFIT_PCT, self.instrument['tickSize'])
+            buy_orders.append({'price': expected_price, 'orderQty': abs(position['currentQty']), 'side': "Buy"})
 
         print(buy_orders)
         print(sell_orders)
-        print('No condition match')
         self.last_position = position['currentQty']
         return self.converge_orders(buy_orders, sell_orders, self.martin_signal)
 
