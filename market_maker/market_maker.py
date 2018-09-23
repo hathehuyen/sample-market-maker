@@ -400,7 +400,7 @@ class OrderManager:
                 sell_size = settings.ORDER_SIZE
                 sell_total += sell_size
                 sell_orders.append({'price': sell_price, 'orderQty': sell_size, 'side': "Sell"})
-
+        # long position
         elif position['currentQty'] > 0:
             buy_total = position['currentQty']
             buy_price = ticker['buy']
@@ -418,9 +418,9 @@ class OrderManager:
                     sell_size = sell_size * 2
                 sell_total += sell_size
                 sell_orders.append({'price': sell_price, 'orderQty': sell_size, 'side': "Sell"})
-
+        # short position
         elif position['currentQty'] < 0:
-            buy_total = -position['currentQty']
+            buy_total = position['currentQty']
             buy_price = ticker['buy']
             while buy_total < settings.MAX_POSITION:
                 buy_price = math.toNearest(buy_price - buy_price * settings.INTERVAL, self.instrument['tickSize'])
@@ -429,7 +429,7 @@ class OrderManager:
                     buy_size = buy_size * 2
                 buy_total += buy_size
                 buy_orders.append({'price': buy_price, 'orderQty': buy_size, 'side': "Buy"})
-            sell_total = position['currentQty']
+            sell_total = -position['currentQty']
             sell_price = ticker['sell']
             while sell_total < abs(settings.MIN_POSITION):
                 sell_price = math.toNearest(sell_price + sell_price * settings.INTERVAL, self.instrument['tickSize'])
