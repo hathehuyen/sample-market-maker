@@ -386,12 +386,22 @@ class OrderManager:
 
         # No position's open
         if position['currentQty'] == 0:
-            sell_price = math.toNearest(ticker['sell'] + ticker['sell'] * settings.WAIT_PCT, self.instrument['tickSize'])
-            buy_price = math.toNearest(ticker['buy'] - ticker['buy'] * settings.WAIT_PCT, self.instrument['tickSize'])
-            buy_orders.append({'price': buy_price, 'orderQty': settings.ORDER_SIZE, 'side': "Buy"})
-            sell_orders.append({'price': sell_price, 'orderQty': settings.ORDER_SIZE, 'side': "Sell"})
-            self.sl = False
-        # Long position
+            buy_total = 0
+            buy_price = ticker['buy']
+            while buy_total < settings.MAX_POSITION:
+                buy_price = math.toNearest(buy_price - buy_price * settings.INTERVAL, self.instrument['tickSize'])
+                buy_size = settings.ORDER_SIZE
+                buy_total += buy_size
+                buy_orders.append({'price': buy_price, 'orderQty': buy_size, 'side': "Buy"})
+            sell_total = 0
+            sell_price = ticker['sell']
+            while sell_total < abs(settings.MIN_POSITION):
+                sell_price = math.toNearest(sell_price + sell_price * settings.INTERVAL, self.instrument['tickSize'])
+                sell_size = settings.ORDER_SIZE
+                sell_total += sell_size
+                sell_orders.append({'price': sell_price, 'orderQty': sell_size, 'side': "Sell"})
+
+
         elif position['currentQty'] > 0:
             if cost - cost * settings.STOPLOSS_PCT > ticker['buy'] and \
                     datetime.now() - self.last_position_change_time >= timedelta(minutes=settings.STOPLOSS_TIME):
