@@ -463,8 +463,8 @@ class OrderManager:
         #
         #     buy_orders.append({'price': expected_price, 'orderQty': abs(position['currentQty']), 'side': "Buy"})
 
-        print(buy_orders)
-        print(sell_orders)
+        # print(buy_orders)
+        # print(sell_orders)
         self.last_position = position['currentQty']
         return self.converge_orders(buy_orders, sell_orders, self.martin_signal)
 
