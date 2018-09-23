@@ -414,6 +414,8 @@ class OrderManager:
             while sell_total < abs(settings.MIN_POSITION):
                 sell_price = math.toNearest(sell_price + sell_price * settings.INTERVAL, self.instrument['tickSize'])
                 sell_size = settings.ORDER_SIZE
+                if sell_price >= cost and abs(position['currentQty']) >= sell_size * 2:
+                    sell_size = sell_size * 2
                 sell_total += sell_size
                 sell_orders.append({'price': sell_price, 'orderQty': sell_size, 'side': "Sell"})
 
@@ -423,6 +425,8 @@ class OrderManager:
             while buy_total < settings.MAX_POSITION:
                 buy_price = math.toNearest(buy_price - buy_price * settings.INTERVAL, self.instrument['tickSize'])
                 buy_size = settings.ORDER_SIZE
+                if buy_price <= cost and abs(position['currentQty']) >= buy_size * 2:
+                    buy_size = buy_size * 2
                 buy_total += buy_size
                 buy_orders.append({'price': buy_price, 'orderQty': buy_size, 'side': "Buy"})
             sell_total = position['currentQty']
