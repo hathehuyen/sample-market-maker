@@ -373,15 +373,6 @@ class OrderManager:
         if self.last_position != position['currentQty']:
             self.last_position_change_time = datetime.now()
 
-        # if not self.resetting:
-        #     if datetime.now() - self.last_position_change_time >= timedelta(minutes=settings.RESET_TIME) and \
-        #             datetime.now() - self.last_reset_time >= timedelta(minutes=settings.RESET_TIME):
-        #         self.last_reset_time = datetime.now()
-        #         self.resetting = True
-        #         self.reset()
-        #         return
-        # self.resetting = False
-
         ticker = self.exchange.get_ticker()
 
         # No position's open
@@ -436,36 +427,6 @@ class OrderManager:
                 sell_size = settings.ORDER_SIZE
                 sell_total += sell_size
                 sell_orders.append({'price': sell_price, 'orderQty': sell_size, 'side': "Sell"})
-
-
-        #
-        # elif position['currentQty'] > 0:
-        #     if cost - cost * settings.STOPLOSS_PCT > ticker['buy'] and \
-        #             datetime.now() - self.last_position_change_time >= timedelta(minutes=settings.STOPLOSS_TIME):
-        #         self.sl = True
-        #
-        #     if not self.sl:
-        #         expected_price = math.toNearest(cost + cost * settings.PROFIT_PCT, self.instrument['tickSize'])
-        #         if expected_price < ticker['sell']:
-        #             expected_price = math.toNearest(ticker['sell'], self.instrument['tickSize'])
-        #     else:
-        #         expected_price = math.toNearest(ticker['sell'], self.instrument['tickSize'])
-        #
-        #     sell_orders.append({'price': expected_price, 'orderQty': abs(position['currentQty']), 'side': "Sell"})
-        # # Short position
-        # else:
-        #     if cost + cost * settings.STOPLOSS_PCT < ticker['sell'] and \
-        #             datetime.now() - self.last_position_change_time >= timedelta(minutes=settings.STOPLOSS_TIME):
-        #         self.sl = True
-        #
-        #     if not self.sl:
-        #         expected_price = math.toNearest(cost - cost * settings.PROFIT_PCT, self.instrument['tickSize'])
-        #         if expected_price > ticker['buy']:
-        #             expected_price = math.toNearest(ticker['buy'], self.instrument['tickSize'])
-        #     else:
-        #         expected_price = math.toNearest(ticker['buy'], self.instrument['tickSize'])
-        #
-        #     buy_orders.append({'price': expected_price, 'orderQty': abs(position['currentQty']), 'side': "Buy"})
 
         # print(buy_orders)
         # print(sell_orders)
