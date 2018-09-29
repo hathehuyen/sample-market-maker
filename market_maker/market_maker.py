@@ -373,9 +373,11 @@ class OrderManager:
         if position['currentQty'] != 0:
             cost = float(position['avgCostPrice'])
         print(datetime.utcnow())
-        print('position %d, cost %f, midprice %f, margin used percent %f, margin available %.6f, wallet balance %.6f' %
-              (position['currentQty'], cost, self.start_position_mid, margin_used_pct, XBt_to_XBT(margin_available),
-               XBt_to_XBT(wallet_balance)))
+        print('position %d, cost %f, midprice %f' %
+              (position['currentQty'], cost, self.start_position_mid))
+        print('margin used percent %f, margin available %.6f, wallet balance %.6f' %
+              (margin_used_pct, XBt_to_XBT(margin_available), XBt_to_XBT(wallet_balance)))
+
         # print(margin)
 
         if self.last_position != position['currentQty']:
