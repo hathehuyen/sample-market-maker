@@ -366,13 +366,17 @@ class OrderManager:
         position = self.exchange.get_position()
         margin = self.exchange.get_margin()
         margin_available = margin["marginBalance"]
+        margin_used_pct = margin["marginUsedPcnt"]
+        wallet_balance = margin["walletBalance"]
 
         cost = 0
         if position['currentQty'] != 0:
             cost = float(position['avgCostPrice'])
-        print('position %d, cost %f, midprice %f, margin available %.6f' %
-              (position['currentQty'], cost, self.start_position_mid, XBt_to_XBT(margin_available)))
-        print(margin)
+        print(datetime.utcnow())
+        print('position %d, cost %f, midprice %f, margin used percent %f, margin available %.6f, wallet balance %.6f' %
+              (position['currentQty'], cost, self.start_position_mid, margin_used_pct, XBt_to_XBT(margin_available),
+               XBt_to_XBT(wallet_balance)))
+        # print(margin)
 
         if self.last_position != position['currentQty']:
             self.last_position_change_time = datetime.now()
