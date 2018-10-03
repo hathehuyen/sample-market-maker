@@ -11,7 +11,7 @@ import numpy as np
 
 from market_maker import bitmex
 from market_maker.settings import settings
-from market_maker.utils import log, constants, errors, math
+from market_maker.utils import log, constants, errors, math, chunks
 
 # Used for reloading the bot - saves modified times of key files
 import os
@@ -243,7 +243,6 @@ class OrderManager:
 
     def print_status(self):
         """Print the current MM status."""
-
         margin = self.exchange.get_margin()
         position = self.exchange.get_position()
         self.running_qty = self.exchange.get_delta()
@@ -320,7 +319,6 @@ class OrderManager:
 
         return math.toNearest(start_position * (1 + settings.INTERVAL) ** index, self.instrument['tickSize'])
 
-
     def get_fibonacci_price_offset(self, index):
         """Given an index (1, -1, 2, -2, etc.) return the price for that side of the book.
            Negative is a buy, positive is a sell."""
@@ -346,7 +344,6 @@ class OrderManager:
             return math.toNearest(start_position - start_position * settings.INTERVAL * (fib(index) - 1),
                                   self.instrument['tickSize'])
 
-
     ###
     # Orders
     ###
@@ -362,7 +359,7 @@ class OrderManager:
         # if not self.check_stable():
         #     print('Current not stable')
         #     return
-        existing_orders = self.exchange.get_orders()
+        # existing_orders = self.exchange.get_orders()
         position = self.exchange.get_position()
         margin = self.exchange.get_margin()
         margin_available = margin["marginBalance"]
@@ -477,7 +474,6 @@ class OrderManager:
         buys_matched = 0
         sells_matched = 0
         existing_orders = self.exchange.get_orders()
-
 
         # Check all existing orders and match them up with what we want to place.
         # If there's an open one, we might be able to amend it to fit what we want.
@@ -601,9 +597,6 @@ class OrderManager:
                 logger.info("%4s %d @ %.*f" % (order['side'], order['leavesQty'], tickLog, order['price']))
             self.exchange.cancel_bulk_orders(to_cancel)
 
-
-
-
     def converge_orders(self, buy_orders, sell_orders, martin_signal = False):
         """Converge the orders we currently have in the book with what we want to be in the book.
            This involves amending any open orders and creating new ones if any have filled completely.
@@ -617,7 +610,6 @@ class OrderManager:
         buys_matched = 0
         sells_matched = 0
         existing_orders = self.exchange.get_orders()
-
 
         # Check all existing orders and match them up with what we want to place.
         # If there's an open one, we might be able to amend it to fit what we want.
@@ -650,7 +642,6 @@ class OrderManager:
                     to_amend.append({'orderID': order['orderID'], 'orderQty': order['cumQty'] + desired_order['orderQty'],
                                      'price': desired_order['price'], 'side': order['side']})
 
-
             except IndexError:
                 # Will throw if there isn't a desired order to match. In that case, cancel it.
                 to_cancel.append(order)
@@ -677,7 +668,12 @@ class OrderManager:
             # made it not amendable.
             # If that happens, we need to catch it and re-tick.
             try:
-                self.exchange.amend_bulk_orders(to_amend)
+                if len(to_amend) <= 100:
+                    self.exchange.amend_bulk_orders(to_amend)
+                else:
+                    to_amends = list(chunks(to_amend, 100))
+                    for o in to_amends:
+                        self.exchange.amend_bulk_orders(o)
             except requests.exceptions.HTTPError as e:
                 errorObj = e.response.json()
                 if errorObj['error']['message'] == 'Invalid ordStatus':
@@ -692,19 +688,28 @@ class OrderManager:
             logger.info("Creating %d orders:" % (len(to_create)))
             for order in reversed(to_create):
                 logger.info("%4s %d @ %.*f" % (order['side'], order['orderQty'], tickLog, order['price']))
-            self.exchange.create_bulk_orders(to_create)
+            if len(to_create) <= 100:
+                self.exchange.create_bulk_orders(to_create)
+            else:
+                to_creates = list(chunks(to_create, 100))
+                for o in to_creates:
+                    self.exchange.create_bulk_orders(o)
 
         # Could happen if we exceed a delta limit
         if len(to_cancel) > 0:
             logger.info("Canceling %d orders:" % (len(to_cancel)))
             for order in reversed(to_cancel):
                 logger.info("%4s %d @ %.*f" % (order['side'], order['leavesQty'], tickLog, order['price']))
-            self.exchange.cancel_bulk_orders(to_cancel)
+            if len(to_cancel) <= 100:
+                self.exchange.cancel_bulk_orders(to_cancel)
+            else:
+                to_cancels = list(chunks(to_cancel, 100))
+                for o in to_cancels:
+                    self.exchange.cancel_bulk_orders(o)
 
     ###
     # Position Limits
     ###
-
     def short_position_limit_exceeded(self):
         """Returns True if the short position limit is exceeded"""
         if not settings.CHECK_POSITION_LIMITS:
@@ -722,7 +727,6 @@ class OrderManager:
     ###
     # Sanity
     ##
-
     def check_stable(self):
         ticker = self.exchange.get_ticker()
         self.buys[0:self.size - 1] = self.buys[1:self.size]
@@ -738,7 +742,6 @@ class OrderManager:
 
         return True
 
-
     def sanity_check(self):
         """Perform checks before placing orders."""
 
@@ -751,7 +754,6 @@ class OrderManager:
         # Get ticker, which sets price offsets and prints some debugging info.
         ticker = self.get_ticker()
         # self.tick_cache.append(ticker)
-
 
         # Sanity check:
         if self.get_price_offset(-1) >= ticker["sell"] or self.get_price_offset(1) <= ticker["buy"]:
@@ -821,10 +823,10 @@ class OrderManager:
         logger.info("Restarting the market maker...")
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
+
 #
 # Helpers
 #
-
 def fib(n):
     n = abs(n)
     if n == 1:
