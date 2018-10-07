@@ -67,15 +67,18 @@ class Telegram(object):
     def _position(self, bot: Bot = None, update: Update = None):
         position = mon.position
         ticker = mon.ticker
-        msg = 'Position %d, cost %d, midprice %d' % \
-              (position['currentQty'], position['avgCostPrice'], ticker['mid'])
+        current_qty = position['currentQty'] if position['currentQty'] else 0
+        cost = position['avgCostPrice'] if position['avgCostPrice'] else 0
+        mid = ticker['mid'] if ticker['mid'] else 0
+        msg = 'Position %d, cost %.2f, midprice %.2f' % \
+              (current_qty, cost, mid)
         self._send_msg(msg)
 
     def _balance(self, bot: Bot = None, update: Update = None):
         margin = mon.margin
-        margin_available = margin["marginBalance"]
-        margin_used_pct = margin["marginUsedPcnt"]
-        wallet_balance = margin["walletBalance"]
+        margin_available = margin["marginBalance"] if margin["marginBalance"] else 0
+        margin_used_pct = margin["marginUsedPcnt"] if margin["marginUsedPcnt"] else 0
+        wallet_balance = margin["walletBalance"] if margin["walletBalance"] else 0
         msg = 'Margin used percent %f, margin available %.6f, wallet balance %.6f' % \
               (margin_used_pct, XBt_to_XBT(margin_available), XBt_to_XBT(wallet_balance))
         self._send_msg(msg)
