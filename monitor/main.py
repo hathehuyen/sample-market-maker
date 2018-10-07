@@ -67,8 +67,8 @@ class Telegram(object):
     def _position(self, bot: Bot = None, update: Update = None):
         position = mon.position
         ticker = mon.ticker
-        msg = 'Position %d, cost %.2f. Ticker: buy %.2f, sell %.2f' % \
-              (position['currentQty'], position['avgCostPrice'], ticker['buy'], ticker['sell'])
+        msg = 'Position %d, cost %.2f, midprice %d' % \
+              (position['currentQty'], float(position['avgCostPrice']), ticker['mid'])
         self._send_msg(msg)
 
     def _balance(self, bot: Bot = None, update: Update = None):
