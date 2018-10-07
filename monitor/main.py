@@ -9,6 +9,7 @@ from telegram.error import NetworkError, TelegramError
 from telegram.ext import CommandHandler, Updater
 
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -29,6 +30,7 @@ class Telegram(object):
         # Register command handler and start telegram message polling
         handles = [
             CommandHandler('status', self._status),
+            CommandHandler('start', self._start),
             CommandHandler('position', self._position),
             CommandHandler('balance', self._balance),
             CommandHandler('help', self._help),
@@ -45,6 +47,11 @@ class Telegram(object):
         # )
         self._updater.start_polling()
         print('Telegram started')
+
+    def _start(self, bot: Bot = None, update: Update = None):
+        print('start')
+        bot = bot or self._updater.bot
+        bot.send_message(chat_id=update.message.chat_id, text="I'm a bot, please talk to me!")
 
     def _status(self):
         print('status')
