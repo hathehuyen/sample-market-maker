@@ -3,7 +3,9 @@ backports.ssl-match-hostname==3.5.0.1
 future==0.16.0
 packaging==16.8
 pyparsing==2.2.0
-requests==2.13.0
+# requests==2.13.0
+requests==2.18.4
 six==1.10.0
 websocket-client==0.48.0
 numpy==1.15.0
+python-telegram-bot==11.1.0

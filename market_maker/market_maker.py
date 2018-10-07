@@ -11,7 +11,7 @@ import numpy as np
 
 from market_maker import bitmex
 from market_maker.settings import settings
-from market_maker.utils import log, constants, errors, math, chunks
+from market_maker.utils import log, constants, errors, math, chunks, write_json_to_shm
 
 # Used for reloading the bot - saves modified times of key files
 import os
@@ -365,6 +365,8 @@ class OrderManager:
         margin_available = margin["marginBalance"]
         margin_used_pct = margin["marginUsedPcnt"]
         wallet_balance = margin["walletBalance"]
+        write_json_to_shm(margin, 'margin.json')
+        write_json_to_shm(position, 'position.json')
 
         cost = 0
         if position['currentQty'] != 0:
@@ -381,6 +383,7 @@ class OrderManager:
             self.last_position_change_time = datetime.now()
 
         ticker = self.exchange.get_ticker()
+        write_json_to_shm(ticker, 'ticker.json')
 
         # No position's open
         if position['currentQty'] == 0:
