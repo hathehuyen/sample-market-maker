@@ -14,8 +14,8 @@ class Monitor(object):
 
     def _read_data(self):
         self.ticker = read_json_from_shm('ticker.json')
-        self.position = read_json_from_shm('ticker.json')
-        self.margin = read_json_from_shm('ticker.json')
+        self.position = read_json_from_shm('position.json')
+        self.margin = read_json_from_shm('margin.json')
 
     def _check_bot_process(self):
         cmd = 'ps ax | grep marketmaker | grep -v grep'
