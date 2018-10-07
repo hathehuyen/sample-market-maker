@@ -25,6 +25,7 @@ class Telegram(object):
 
     def _init(self):
         self._updater = Updater(token=self.token, workers=0)
+        self._dispatcher = self._updater.dispatcher
         # Register command handler and start telegram message polling
         handles = [
             CommandHandler('status', self._status),
@@ -34,14 +35,16 @@ class Telegram(object):
             CommandHandler('version', self._version),
         ]
         for handle in handles:
-            self._updater.dispatcher.add_handler(handle)
-        self._updater.start_polling(
-            clean=True,
-            bootstrap_retries=-1,
-            timeout=30,
-            read_latency=60,
-        )
-        print('Telegram is listening for following commands: %s', [h.command for h in handles])
+            self._dispatcher.add_handler(handle)
+
+        # self._updater.start_polling(
+        #     clean=True,
+        #     bootstrap_retries=-1,
+        #     timeout=30,
+        #     read_latency=60,
+        # )
+        self._updater.start_polling()
+        print('Telegram started')
 
     def _status(self):
         print('status')
