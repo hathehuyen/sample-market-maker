@@ -17,13 +17,13 @@ mon.start()
 
 
 class Telegram(object):
-    def __init__(self, token, chat_id) -> None:
+    def __init__(self, token, chat_id):
         self.token = token
         self.chat_id = chat_id
         self._updater: Updater = None
         self._init()
 
-    def _init(self) -> None:
+    def _init(self):
         self._updater = Updater(token=self.token, workers=0)
         # Register command handler and start telegram message polling
         handles = [
@@ -43,26 +43,27 @@ class Telegram(object):
         )
         print('Telegram is listening for following commands: %s', [h.command for h in handles])
 
-    def _status(self) -> None:
+    def _status(self):
+        print('status')
         if mon.bot_running:
             msg = 'Bot is running!'
         else:
             msg = 'Bot is stopped!'
         self._send_msg(msg)
 
-    def _position(self) -> None:
+    def _position(self):
         print('Position')
 
-    def _balance(self) -> None:
+    def _balance(self):
         print('Balance')
 
-    def _help(self) -> None:
+    def _help(self):
         print('Version 0.99.9')
 
-    def _version(self) -> None:
+    def _version(self):
         print('Version 0.99.9')
 
-    def _send_msg(self, msg: str, bot: Bot = None, parse_mode: ParseMode = ParseMode.MARKDOWN) -> None:
+    def _send_msg(self, msg: str, bot: Bot = None, parse_mode: ParseMode = ParseMode.MARKDOWN):
         """
         Send given markdown message
         :param msg: message
