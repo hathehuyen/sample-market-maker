@@ -21,7 +21,7 @@ class TG(object):
     def start(self, bot, update):
         bot.send_message(chat_id=update.message.chat_id, text="I'm a bot, please talk to me!")
 
-tg = TG(settings.telegram_token, settings.chat_id)
+tg = TG(settings.telegram_token, settings.telegram_chat_id)
 
 while True:
     sleep(10)
