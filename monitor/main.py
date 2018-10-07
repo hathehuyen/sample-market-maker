@@ -17,6 +17,10 @@ mon = Monitor()
 mon.start()
 
 
+def XBt_to_XBT(XBt):
+    return float(XBt) / 100000000
+
+
 class Telegram(object):
     def __init__(self, token, chat_id):
         self.token = token
@@ -39,13 +43,13 @@ class Telegram(object):
         for handle in handles:
             self._dispatcher.add_handler(handle)
 
-        # self._updater.start_polling(
-        #     clean=True,
-        #     bootstrap_retries=-1,
-        #     timeout=30,
-        #     read_latency=60,
-        # )
-        self._updater.start_polling()
+        self._updater.start_polling(
+            clean=True,
+            bootstrap_retries=-1,
+            timeout=30,
+            read_latency=60,
+        )
+        # self._updater.start_polling()
         print('Telegram started')
 
     def _start(self, bot: Bot = None, update: Update = None):
@@ -53,25 +57,36 @@ class Telegram(object):
         bot = bot or self._updater.bot
         bot.send_message(chat_id=update.message.chat_id, text="I'm a bot, please talk to me!")
 
-    def _status(self):
-        print('status')
+    def _status(self, bot: Bot = None, update: Update = None):
         if mon.bot_running:
             msg = 'Bot is running!'
         else:
             msg = 'Bot is stopped!'
         self._send_msg(msg)
 
-    def _position(self):
-        print('Position')
+    def _position(self, bot: Bot = None, update: Update = None):
+        position = mon.position
+        ticker = mon.ticker
+        msg = 'Position %d, cost %f. Ticker: buy %f, sell %f' % \
+              (position['currentQty'], position['avgCostPrice'], ticker['buy'], ticker['sell'])
+        self._send_msg(msg)
 
-    def _balance(self):
-        print('Balance')
+    def _balance(self, bot: Bot = None, update: Update = None):
+        margin = mon.margin
+        margin_available = margin["marginBalance"]
+        margin_used_pct = margin["marginUsedPcnt"]
+        wallet_balance = margin["walletBalance"]
+        msg = 'margin used percent %f, margin available %.6f, wallet balance %.6f' % \
+              (margin_used_pct, XBt_to_XBT(margin_available), XBt_to_XBT(wallet_balance))
+        self._send_msg(msg)
 
-    def _help(self):
-        print('Version 0.99.9')
+    def _help(self, bot: Bot = None, update: Update = None):
+        msg = 'Command available: /start, /status, /position, /balance, /version, /help'
+        self._send_msg(msg)
 
-    def _version(self):
-        print('Version 0.99.9')
+    def _version(self, bot: Bot = None, update: Update = None):
+        msg = 'Bot Version 0.99.9'
+        self._send_msg(msg)
 
     def _send_msg(self, msg: str, bot: Bot = None, parse_mode: ParseMode = ParseMode.MARKDOWN):
         """
