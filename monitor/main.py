@@ -20,11 +20,11 @@ class Telegram(object):
     def __init__(self, token, chat_id) -> None:
         self.token = token
         self.chat_id = chat_id
-        self._updater = Updater(token=token, workers=0)
-        self._dispatcher = self._updater.dispatcher
+        self._updater: Updater = None
         self._init()
 
     def _init(self) -> None:
+        self._updater = Updater(token=self.token, workers=0)
         # Register command handler and start telegram message polling
         handles = [
             CommandHandler('status', self._status),
