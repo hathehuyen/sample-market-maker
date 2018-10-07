@@ -41,8 +41,8 @@ class Telegram(object):
             timeout=30,
             read_latency=60,
         )
-        logger.info(
-            'rpc.telegram is listening for following commands: %s',
+        print(
+            'Telegram is listening for following commands: %s',
             [h.command for h in handles]
         )
 
