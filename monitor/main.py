@@ -24,7 +24,7 @@ class Telegram(object):
         self._dispatcher = self._updater.dispatcher
         self._init()
 
-    def _init(self):
+    def _init(self) -> None:
         # Register command handler and start telegram message polling
         handles = [
             CommandHandler('status', self._status),
@@ -41,10 +41,7 @@ class Telegram(object):
             timeout=30,
             read_latency=60,
         )
-        print(
-            'Telegram is listening for following commands: %s',
-            [h.command for h in handles]
-        )
+        print('Telegram is listening for following commands: %s', [h.command for h in handles])
 
     def _status(self):
         if mon.bot_running:
@@ -60,7 +57,7 @@ class Telegram(object):
         pass
 
     def _help(self):
-        pass
+        print('Version 0.99.9')
 
     def _version(self):
         pass
