@@ -2,8 +2,8 @@ import logging
 import threading
 import json
 from time import sleep
-from monitor import settings
-from monitor.monitor import Monitor
+import settings
+from monitor import Monitor
 from telegram import Bot, ParseMode, ReplyKeyboardMarkup, Update
 from telegram.error import NetworkError, TelegramError
 from telegram.ext import CommandHandler, Updater
@@ -20,8 +20,8 @@ class Telegram(object):
     def __init__(self, token, chat_id):
         self.token = token
         self.chat_id = chat_id
-        self._updater = Updater(token=token)
-        self._dispacher = self._updater.dispatcher
+        self._updater = Updater(token=token, workers=0)
+        self._dispatcher = self._updater.dispatcher
         # Register command handler and start telegram message polling
         handles = [
             CommandHandler('status', self._status),
