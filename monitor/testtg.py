@@ -10,6 +10,7 @@ class TG(object):
         self.token = token
         self.chat_id = chat_id
         self._updater: Updater = None
+        self._init()
 
     def _init(self):
         self._updater = Updater(token=settings.telegram_token)
@@ -20,6 +21,7 @@ class TG(object):
 
     def start(self, bot, update):
         bot.send_message(chat_id=update.message.chat_id, text="I'm a bot, please talk to me!")
+
 
 tg = TG(settings.telegram_token, settings.telegram_chat_id)
 
