@@ -17,7 +17,7 @@ mon.start()
 
 
 class Telegram(object):
-    def __init__(self, token, chat_id):
+    def __init__(self, token, chat_id) -> None:
         self.token = token
         self.chat_id = chat_id
         self._updater = Updater(token=token, workers=0)
@@ -43,24 +43,24 @@ class Telegram(object):
         )
         print('Telegram is listening for following commands: %s', [h.command for h in handles])
 
-    def _status(self):
+    def _status(self) -> None:
         if mon.bot_running:
             msg = 'Bot is running!'
         else:
             msg = 'Bot is stopped!'
         self._send_msg(msg)
 
-    def _position(self):
-        pass
+    def _position(self) -> None:
+        print('Position')
 
-    def _balance(self):
-        pass
+    def _balance(self) -> None:
+        print('Balance')
 
-    def _help(self):
+    def _help(self) -> None:
         print('Version 0.99.9')
 
-    def _version(self):
-        pass
+    def _version(self) -> None:
+        print('Version 0.99.9')
 
     def _send_msg(self, msg: str, bot: Bot = None, parse_mode: ParseMode = ParseMode.MARKDOWN) -> None:
         """
