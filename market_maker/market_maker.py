@@ -365,6 +365,7 @@ class OrderManager:
         margin_available = margin["marginBalance"]
         margin_used_pct = margin["marginUsedPcnt"]
         wallet_balance = margin["walletBalance"]
+        liq_price = position["liquidationPrice"]
         write_json_to_shm(margin, 'margin.json')
         write_json_to_shm(position, 'position.json')
 
@@ -372,8 +373,8 @@ class OrderManager:
         if position['currentQty'] != 0:
             cost = float(position['avgCostPrice'])
         print(datetime.utcnow())
-        print('position %d, cost %f, midprice %f' %
-              (position['currentQty'], cost, self.start_position_mid))
+        print('position %d, cost %f, midprice %f, liq price %f' %
+              (position['currentQty'], cost, self.start_position_mid, liq_price))
         print('margin used percent %f, margin available %.6f, wallet balance %.6f' %
               (margin_used_pct, XBt_to_XBT(margin_available), XBt_to_XBT(wallet_balance)))
 
@@ -407,6 +408,8 @@ class OrderManager:
             buy_price = ticker['buy']
             while buy_total < settings.MAX_POSITION:
                 buy_price = math.toNearest(buy_price - buy_price * settings.INTERVAL, self.instrument['tickSize'])
+                if buy_price <= liq_price:
+                    break
                 buy_size = settings.ORDER_SIZE
                 buy_total += buy_size
                 buy_orders.append({'price': buy_price, 'orderQty': buy_size, 'side': "Buy"})
@@ -434,6 +437,8 @@ class OrderManager:
             sell_price = ticker['sell']
             while sell_total < abs(settings.MIN_POSITION):
                 sell_price = math.toNearest(sell_price + sell_price * settings.INTERVAL, self.instrument['tickSize'])
+                if sell_price >= liq_price:
+                    break
                 sell_size = settings.ORDER_SIZE
                 sell_total += sell_size
                 sell_orders.append({'price': sell_price, 'orderQty': sell_size, 'side': "Sell"})
