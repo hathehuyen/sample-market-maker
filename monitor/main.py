@@ -70,8 +70,9 @@ class Telegram(object):
         current_qty = position['currentQty'] if position['currentQty'] else 0
         cost = position['avgCostPrice'] if position['avgCostPrice'] else 0
         mid = ticker['mid'] if ticker['mid'] else 0
-        msg = 'Position %d, cost %.2f, midprice %.2f' % \
-              (current_qty, cost, mid)
+        liq_price = position["liquidationPrice"] if position["liquidationPrice"] else 0
+        msg = 'Position %d, cost %.2f, midprice %.2f, liqprice %.2f' % \
+              (current_qty, cost, mid, liq_price)
         self._send_msg(msg)
 
     def _balance(self, bot: Bot = None, update: Update = None):

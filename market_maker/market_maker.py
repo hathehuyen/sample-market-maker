@@ -365,7 +365,7 @@ class OrderManager:
         margin_available = margin["marginBalance"]
         margin_used_pct = margin["marginUsedPcnt"]
         wallet_balance = margin["walletBalance"]
-        liq_price = position["liquidationPrice"]
+        liq_price = position["liquidationPrice"] if position["liquidationPrice"] else 0
         write_json_to_shm(margin, 'margin.json')
         write_json_to_shm(position, 'position.json')
 
