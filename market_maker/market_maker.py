@@ -287,7 +287,7 @@ class OrderManager:
             self.start_position_sell *= (1.00 + (settings.MIN_SPREAD / 2))
 
         # Midpoint, used for simpler order placement.
-        self.start_position_mid = ticker["mid"]
+        self.start_position_mid = ticker["mid"] if ticker["mid"] else (ticker["buy"] + ticker["sell"]) /2
         logger.info(
             "%s Ticker: Buy: %.*f, Sell: %.*f" %
             (self.instrument['symbol'], tickLog, ticker["buy"], tickLog, ticker["sell"])
@@ -365,7 +365,7 @@ class OrderManager:
         margin_available = margin["marginBalance"]
         margin_used_pct = margin["marginUsedPcnt"]
         wallet_balance = margin["walletBalance"]
-        liq_price = position["liquidationPrice"] if position["liquidationPrice"] else 0
+        liq_price = position["liquidationPrice"] if "liquidationPrice" in position and position["liquidationPrice"] else 0.0
         write_json_to_shm(margin, 'margin.json')
         write_json_to_shm(position, 'position.json')
 
@@ -374,7 +374,11 @@ class OrderManager:
             cost = float(position['avgCostPrice'])
         print(datetime.utcnow())
         print('position %d, cost %f, midprice %f, liq price %f' %
-              (position['currentQty'], cost, self.start_position_mid, liq_price))
+              (position['currentQty'] if position['currentQty'] else 0.0,
+               cost,
+               self.start_position_mid,
+               liq_price)
+              )
         print('margin used percent %f, margin available %.6f, wallet balance %.6f' %
               (margin_used_pct, XBt_to_XBT(margin_available), XBt_to_XBT(wallet_balance)))
 
@@ -385,7 +389,7 @@ class OrderManager:
 
         ticker = self.exchange.get_ticker()
         write_json_to_shm(ticker, 'ticker.json')
-
+        print('Settingssss:', settings.MAX_POSITION, settings.ORDER_SIZE)
         # No position's open
         if position['currentQty'] == 0:
             buy_total = 0
